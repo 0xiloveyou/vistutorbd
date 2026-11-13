@@ -37,6 +37,13 @@ Start the backend first (`cd ../backend && npm run dev`).
 | Route | Access | Notes |
 | --- | --- | --- |
 | `/` | public | Animated visual-lesson carousel, class picker, features, grounded chat |
+| `/search` | public | Topic search with class filter and pagination (`?q=&classLevelId=&page=`) |
+| `/about` | public | Mission, what the platform offers, audience |
+| `/contact` | public | Contact form → backend SMTP |
+| `/faqs` | public | Expandable frequently asked questions |
+| `/legal/terms` | public | Terms & Conditions |
+| `/legal/privacy` | public | Privacy Policy |
+| `/legal/disclaimer` | public | Disclaimer |
 | `/class/[level]` | public | Categories and chapters for a class |
 | `/class/[level]/[category]/[chapter]` | public | Chapter topics + practice link |
 | `/topic/[slug]` | public | Lesson blocks, visualization player, bookmarks/progress, chat |
@@ -65,13 +72,17 @@ src/app/
   class/[level]/[category]/[chapter]/
   topic/[slug]/                Topic page
   practice/[chapter]/          Practice page
+  search/                      Topic search + class filter + pagination
+  about|contact|faqs/          Informational pages
+  legal/[slug]/                Terms, privacy and disclaimer
   login|register|verify-account|forgot-password|auth/google/callback/
   bookmarks|profile|settings|admin|moderator/
 src/api/                       One module per backend feature
 src/hooks/                     React Query hooks (auth + platform)
 src/lib/                       apiClient, serverApi, i18n, themes, mathCheck, localized
 src/providers/                 Theme, locale, class, Google, React Query
-src/components/                Header, picker, dock, lesson, viz host, chat, quiz, auth
+src/components/                Header (search + hamburger), footer, pagination, visitor tracker,
+                               picker, dock, lesson, viz host, chat, quiz, auth
 src/viz/                       Player shell + placeholder renderer registry
 src/routes/index.js            Route constants
 ```
@@ -83,6 +94,8 @@ src/routes/index.js            Route constants
 3. `apiClient` sets `credentials: "include"`, so the backend's httpOnly cookies travel with every request.
 4. `useGetMe()` is the source of truth for the current user. Login, Google login and OTP verification invalidate `["user"]`.
 5. `AuthGuard` redirects unauthenticated visitors to `/login`; `RoleGuard` also shows an access-denied card for the wrong role.
+6. `VisitorTracker` keeps a browser visitor id in `localStorage` and posts one page view per route to `POST /analytics/visit`; it never blocks rendering.
+7. `serverGetWithMeta()` is used by `/search` for pagination; `serverGet()` remains the simple data-only helper.
 
 ## Theming and language
 

@@ -1,6 +1,6 @@
 # Frontend progress
 
-_Last updated: skeleton phase._
+_Last updated: navbar restructure, debounced search, centered auth pages, search, footer, mobile navigation, static/legal pages, visitor tracking and pagination._
 
 ## Status
 
@@ -23,24 +23,42 @@ _Last updated: skeleton phase._
 | Admin shell | ✅ | Overview, users table (role/delete), template list, placeholder tabs |
 | Moderator shell | ✅ | Report queue with status filters and actions |
 | 404 | ✅ | Themed not-found page |
+| Search | ✅ | Header search bar + `/search` page, class filter, paginated topic results |
+| Footer | ✅ | Brand, Explore/Company/Legal columns, copyright, responsive layout |
+| Mobile navigation | ✅ | Hamburger menu replaces the nav below 1100px; Home link removed from nav |
+| About / Contact / FAQs | ✅ | `/about`, `/contact` (posts to backend), `/faqs` accordion |
+| Legal pages | ✅ | `/legal/terms`, `/legal/privacy`, `/legal/disclaimer` |
+| Visitor tracking | ✅ | `VisitorTracker` posts one page view per route to `/analytics/visit` |
+| Pagination | ✅ | Shared `Pagination` used by search, forum and admin users |
 | Route/API docs | ✅ | `docs/routes.md` |
 | Backend docs | ✅ | `../backend/docs/api/*` |
 
 ## Latest update
 
-- Added the interactive carousel from `../backend/public/index.html` to the top of the homepage using `public/visual-lessons.html`.
-- Removed the right-triangle trigonometry card from the homepage.
-- Preserved autoplay, pause/replay, lesson navigation, touch swiping and display modes in the embedded section.
+- Removed the **Home** item from the primary navigation (the brand logo still links home) and added **About**, **Contact** and **FAQs**.
+- Added a persistent search bar in the header and a `/search` page. Results support a class filter, bilingual topic titles/summaries, and pagination with `q` + `classLevelId` preserved.
+- Added a full footer (`SiteFooter`) with Explore, Company and Legal columns; the old one-line footer is gone.
+- Added About, Contact (posts to `POST /contact`), FAQs and three legal pages: Terms & Conditions, Privacy Policy, Disclaimer.
+- Added a mobile hamburger menu (`nav-toggle`) with an accessible expanded state and automatic close on route change.
+- Added `Pagination` and wired it into `/search`, `/forum` and the admin users table (forum + users now fetch 10/20 per page).
+- Added `VisitorTracker`: a localStorage visitor id posts one page view per route to `POST /analytics/visit`, powering the backend’s six-hour visitor report.
+- Added `serverGetWithMeta()` so server pages can render pagination envelopes.
+- Added new bilingual strings for nav, search, footer, contact, FAQs and legal labels.
+- Rebuilt the header into two rows: brand + account/tools on top, primary navigation + search below. This removes the clipped/overflowing nav (`ফোরাম` was rendering as only `ম`) and keeps every link visible on desktop and tablet.
+- Made the brand logo and site name an explicit home link (`/`) that also closes the mobile menu.
+- Added `useDebouncedValue()` and used it in two places: the header search shows bilingual topic suggestions after a 350 ms pause, and `/search` live-updates results/class filter after 450 ms without a submit.
+- Centered the auth pages (`.auth-shell` uses flex `align-items: center; justify-content: center`) and centered the optional Google button inside the card; this covers login, register, forgot/reset and the Google callback.
+- Tightened the mobile bar to brand + account + hamburger; the class picker and theme/language controls remain available on the home page and Settings.
 
 ## Verification
 
 ```bash
-npm run build   # Next.js production build succeeds (15 routes)
+npm run build   # Next.js production build succeeds (19 routes)
 ```
 
 ## Skeleton / placeholder behaviour
 
-- Chapters, topics and visualizations are not seeded, so class and topic pages show intentional empty states until content is authored.
+- The catalog is seeded (4 users, 180 chapters, 238 topics, 1,533 visualizations), so class/topic pages have real content.
 - `src/viz/renderers/PlaceholderRenderer.jsx` is the only renderer. `getRenderer()` returns it for unknown renderer ids.
 - Admin taxonomy/topic/visualization/knowledge tabs are shells with the editor copy; content forms come in the content phase.
 - Guest practice is checked locally with `src/lib/mathCheck.js`; signed-in attempts use the backend math engine.

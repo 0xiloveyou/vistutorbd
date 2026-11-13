@@ -1,5 +1,6 @@
 "use client";
 
+import Pagination from "@/components/Pagination";
 import ForumComposer from "@/components/forum/ForumComposer";
 import ForumPostCard from "@/components/forum/ForumPostCard";
 import { useForumPosts, useForumTags } from "@/hooks";
@@ -11,12 +12,14 @@ export default function ForumPage() {
   const { locale, t } = useLocale();
   const [tag, setTag] = useState("");
   const [sort, setSort] = useState("new");
+  const [page, setPage] = useState(1);
 
   const tagsQuery = useForumTags();
   const postsQuery = useForumPosts({
     ...(tag ? { tag } : {}),
     sort,
-    limit: 30,
+    page,
+    limit: 10,
   });
 
   const predefined = tagsQuery.data?.predefined ?? [];
@@ -55,7 +58,13 @@ export default function ForumPage() {
 
           <label className="forum-sort">
             <span>{t("forum.sort")}</span>
-            <select value={sort} onChange={(event) => setSort(event.target.value)}>
+            <select
+              value={sort}
+              onChange={(event) => {
+                setSort(event.target.value);
+                setPage(1);
+              }}
+            >
               <option value="new">{t("forum.newest")}</option>
               <option value="old">{t("forum.oldest")}</option>
             </select>
@@ -66,7 +75,10 @@ export default function ForumPage() {
           <button
             type="button"
             className={tag ? "tag-chip" : "tag-chip active"}
-            onClick={() => setTag("")}
+            onClick={() => {
+              setTag("");
+              setPage(1);
+            }}
           >
             {t("forum.allTags")}
           </button>
@@ -76,7 +88,10 @@ export default function ForumPage() {
               key={item.id}
               type="button"
               className={tag === item.id ? "tag-chip active" : "tag-chip"}
-              onClick={() => setTag(tag === item.id ? "" : item.id)}
+              onClick={() => {
+                setTag(tag === item.id ? "" : item.id);
+                setPage(1);
+              }}
             >
               #{locale === "bn" ? item.bn : item.en}
             </button>
@@ -87,7 +102,10 @@ export default function ForumPage() {
               key={item.id}
               type="button"
               className={tag === item.id ? "tag-chip active" : "tag-chip"}
-              onClick={() => setTag(tag === item.id ? "" : item.id)}
+              onClick={() => {
+                setTag(tag === item.id ? "" : item.id);
+                setPage(1);
+              }}
             >
               #{item.id} <small className="muted">{item.count}</small>
             </button>
@@ -115,6 +133,15 @@ export default function ForumPage() {
             <ForumPostCard key={post.id} post={post} />
           ))}
         </div>
+
+        <Pagination
+          page={postsQuery.data?.meta?.page ?? page}
+          totalPages={postsQuery.data?.meta?.totalPages ?? 1}
+          onChange={(next) => {
+            setPage(next);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+        />
       </section>
     </div>
   );

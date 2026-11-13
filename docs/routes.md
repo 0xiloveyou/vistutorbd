@@ -9,6 +9,11 @@ The root layout fetches `GET /taxonomy/bands` on the server and passes the resul
 | Route | File | Rendering | APIs |
 | --- | --- | --- | --- |
 | `/` | `app/page.jsx` | client | Header `GET /auth/me`; chat `POST /chat/messages`, `POST /chat/image-problem` |
+| `/search` | `app/search/page.jsx` → `SearchView` | server + client island | `GET /taxonomy/bands`, `GET /topics?q=&classLevelId=&page=&limit=` |
+| `/about` | `app/about/page.jsx` | client | none (bilingual static content) |
+| `/contact` | `app/contact/page.jsx` | client | `POST /contact` |
+| `/faqs` | `app/faqs/page.jsx` | client | none (bilingual FAQ data) |
+| `/legal/[slug]` | `app/legal/[slug]/page.jsx` | client | none (terms, privacy, disclaimer) |
 | `/class/[level]` | `app/class/[level]/page.jsx` | server | `GET /taxonomy/levels/:id`, `GET /taxonomy/categories?classLevelId=`, `GET /taxonomy/chapters?categoryId=` per category |
 | `/class/[level]/[category]/[chapter]` | `app/class/[level]/[category]/[chapter]/page.jsx` | server | `GET /taxonomy/levels/:id`, `GET /taxonomy/categories?classLevelId=`, `GET /taxonomy/chapters?categoryId=`, `GET /topics?chapterId=&limit=50` |
 | `/topic/[slug]` | `app/topic/[slug]/page.jsx` | server + client islands | `GET /topics/:slug`; `GET /visualizations/:vizId`; `POST/DELETE /user-state/bookmarks`; `PUT /user-state/progress/:topicId`; `POST /chat/messages`, `POST /chat/image-problem` |
@@ -41,10 +46,14 @@ All four pages are wrapped in `AuthGuard` (`useGetMe`, redirect to `/login` on f
 | `/bookmarks` | `app/bookmarks/page.jsx` | `GET /auth/me` (guard), `GET /user-state/bookmarks`, `DELETE /user-state/bookmarks/:topicId` |
 | `/profile` | `app/profile/page.jsx` | `GET /auth/me`, `GET /user-state/progress`, `GET /quiz/attempts` |
 | `/settings` | `app/settings/page.jsx` | `GET /auth/me`, `PATCH /user-state/preferences` |
-| `/admin` | `app/admin/page.jsx` | `GET /auth/me`, `GET /user?limit=50`, `PATCH /user/:id`, `DELETE /user/:id`, `GET /quiz/templates` |
+| `/admin` | `app/admin/page.jsx` | `GET /auth/me`, `GET /user?page=&limit=20`, `PATCH /user/:id`, `DELETE /user/:id`, `GET /quiz/templates` |
 | `/moderator` | `app/moderator/page.jsx` | `GET /auth/me`, `GET /moderation/reports?status=`, `PATCH /moderation/reports/:id` |
 
 `/admin` requires `ADMIN`; `/moderator` accepts `ADMIN` or `MODERATOR`.
+
+## Analytics
+
+`VisitorTracker` (`src/components/VisitorTracker.jsx`) runs in the root layout and posts `POST /analytics/visit` once per route with a `localStorage` visitor id. The server groups these records for the six-hour visitor email (`GET /analytics/visitors`, `POST /analytics/visitors/report`).
 
 ## Client state and persistence
 

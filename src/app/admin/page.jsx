@@ -1,5 +1,6 @@
 "use client";
 
+import Pagination from "@/components/Pagination";
 import RoleGuard from "@/components/auth/RoleGuard";
 import SystemLogs from "@/components/SystemLogs";
 import {
@@ -17,7 +18,11 @@ const TABS = ["overview", "taxonomy", "topics", "visualizations", "questions", "
 function AdminBody() {
   const { t } = useLocale();
   const [tab, setTab] = useState("overview");
-  const users = useUsers({ limit: 50 }, tab === "users" || tab === "overview");
+  const [userPage, setUserPage] = useState(1);
+  const users = useUsers(
+    { limit: 20, page: userPage },
+    tab === "users" || tab === "overview",
+  );
   const templates = useQuestionTemplates(tab === "questions" || tab === "overview");
   const updateUser = useUpdateUser();
   const deleteUser = useDeleteUser();
@@ -59,7 +64,10 @@ function AdminBody() {
             role="tab"
             aria-selected={tab === item}
             className={tab === item ? "active" : ""}
-            onClick={() => setTab(item)}
+            onClick={() => {
+              setTab(item);
+              setUserPage(1);
+            }}
           >
             {t(`admin.${item}`)}
           </button>
@@ -179,6 +187,12 @@ function AdminBody() {
               </tbody>
             </table>
           </div>
+
+          <Pagination
+            page={users.data?.meta?.page ?? userPage}
+            totalPages={users.data?.meta?.totalPages ?? 1}
+            onChange={setUserPage}
+          />
         </div>
       ) : null}
 

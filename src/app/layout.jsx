@@ -1,5 +1,7 @@
 import FloatingDock from "@/components/FloatingDock";
+import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
+import VisitorTracker from "@/components/VisitorTracker";
 import { serverGet } from "@/lib/serverApi";
 import Providers from "@/providers";
 import "katex/dist/katex.min.css";
@@ -37,14 +39,10 @@ export default async function RootLayout({ children }) {
           }}
         />
         <Providers bands={bands}>
+          <VisitorTracker />
           <SiteHeader />
           <main className="page-shell">{children}</main>
-          <footer className="site-footer">
-            <span>VizTutorBD · Play → Class 12</span>
-            <span className="muted">
-              English + বাংলা · AI companion · forum · visualization-first
-            </span>
-          </footer>
+          <SiteFooter />
           <FloatingDock />
         </Providers>
       </body>

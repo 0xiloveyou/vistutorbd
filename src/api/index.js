@@ -1,4 +1,5 @@
 export * from "./auth.api";
+export * from "./contact.api";
 export * from "./taxonomy.api";
 export * from "./topic.api";
 export * from "./visualization.api";
