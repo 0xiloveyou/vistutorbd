@@ -1,4 +1,5 @@
 import apiClient from "@/lib/apiClient";
+import { normalizeVizSpec } from "@/viz/spec";
 
 export async function getVisualizations(query = {}) {
   const response = await apiClient("/visualizations", {
@@ -13,7 +14,7 @@ export async function getVisualization(vizId, query = {}) {
     query,
     cache: "no-store",
   });
-  return response.data;
+  return normalizeVizSpec(response.data);
 }
 
 export async function createVisualization(payload) {
@@ -21,7 +22,7 @@ export async function createVisualization(payload) {
     method: "POST",
     body: payload,
   });
-  return response.data;
+  return normalizeVizSpec(response.data);
 }
 
 export async function updateVisualization(vizId, payload) {
@@ -29,7 +30,7 @@ export async function updateVisualization(vizId, payload) {
     method: "PUT",
     body: payload,
   });
-  return response.data;
+  return normalizeVizSpec(response.data);
 }
 
 export async function deleteVisualization(vizId) {

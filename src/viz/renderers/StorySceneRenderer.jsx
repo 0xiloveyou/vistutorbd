@@ -78,15 +78,33 @@ export default function StorySceneRenderer({ step, lang, spec, sound = true }) {
   }
 
   if (scene === "plus-minus") {
+    const plusLabel = pick(data.plus, lang) || "more";
+    const minusLabel = pick(data.minus, lang) || "less";
+    const activeSign = step?.data?.minus
+      ? "minus"
+      : step?.data?.plus
+        ? "plus"
+        : null;
+
     return (
       <div className="story-scene plus-minus">
-        <button type="button" className="sign-card plus" onClick={() => tap(0, "plus")}>
+        <button
+          type="button"
+          className={`sign-card plus${activeSign === "plus" ? " active" : ""}`}
+          onClick={() => tap(0, plusLabel)}
+          aria-pressed={activeSign === "plus"}
+        >
           <span>+</span>
-          <strong>{pick(data.plus, lang) || "more"}</strong>
+          <strong>{plusLabel}</strong>
         </button>
-        <button type="button" className="sign-card minus" onClick={() => tap(1, "minus")}>
+        <button
+          type="button"
+          className={`sign-card minus${activeSign === "minus" ? " active" : ""}`}
+          onClick={() => tap(1, minusLabel)}
+          aria-pressed={activeSign === "minus"}
+        >
           <span>−</span>
-          <strong>{pick(data.minus, lang) || "less"}</strong>
+          <strong>{minusLabel}</strong>
         </button>
         <p className="oc-caption">{pick(data.caption, lang)}</p>
       </div>
@@ -95,6 +113,8 @@ export default function StorySceneRenderer({ step, lang, spec, sound = true }) {
 
   if (scene === "story-sum") {
     const groups = data.groups ?? [2, 1];
+    const caption =
+      step?.data?.caption ?? step?.narration ?? data.caption;
     return (
       <div className="story-scene story-sum">
         <div className="sum-row">
@@ -116,7 +136,7 @@ export default function StorySceneRenderer({ step, lang, spec, sound = true }) {
             {groups.reduce((sum, count) => sum + count, 0)}
           </strong>
         </div>
-        <p className="oc-caption">{pick(data.caption, lang)}</p>
+        <p className="oc-caption">{pick(caption, lang)}</p>
       </div>
     );
   }

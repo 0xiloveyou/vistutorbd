@@ -10,9 +10,8 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import ClassPicker from "./ClassPicker";
 
-export default function SiteHeader({ showClassPicker = true }) {
+export default function SiteHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const { data } = useGetMe();
@@ -101,8 +100,6 @@ export default function SiteHeader({ showClassPicker = true }) {
         </Link>
 
         <div className="header-actions">
-          {showClassPicker ? <ClassPicker /> : null}
-
           <div className="header-tools">
             <select
               className="chip chip-select"
@@ -122,6 +119,8 @@ export default function SiteHeader({ showClassPicker = true }) {
               className="chip"
               onClick={toggleMode}
               aria-label={mode === "dark" ? t("common.light") : t("common.dark")}
+              aria-pressed={mode === "dark"}
+              title={mode === "dark" ? t("common.light") : t("common.dark")}
             >
               {mode === "dark" ? "☀" : "☾"}
             </button>
@@ -132,6 +131,7 @@ export default function SiteHeader({ showClassPicker = true }) {
               onClick={toggleLocale}
               aria-label={t("common.language")}
               title={t("common.language")}
+              aria-pressed={locale === "bn"}
             >
               {locale === "en" ? "বাংলা" : "English"}
             </button>

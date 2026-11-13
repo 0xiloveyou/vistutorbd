@@ -15,7 +15,7 @@ _Last updated: navbar restructure, debounced search, centered auth pages, search
 | Topic | ✅ | Lesson blocks, KaTeX inline/block math, viz player shell, bookmarks/progress, chat drawer |
 | Visualization player | ✅ | Stepper shell, play/pause, speed, scrub, keyboard shortcuts, EN/BN, placeholder renderer |
 | Practice | ✅ | Config (time mode, answer mode, difficulty), MCQ + typed math input, timer, results, guest fallback |
-| Chat shell | ✅ | Messages, grounding badge, sources, photo upload, loading/error states |
+| Chat shell | ✅ | Messages, grounding badge, sources, photo upload, free voice playback (OpenRouter EN + browser BN), loading/error states |
 | Auth pages | ✅ | Login (+ optional Google), register/OTP, verify, forgot/reset, Google callback |
 | Bookmarks | ✅ | List + remove |
 | Profile | ✅ | Account, reading progress, recent attempts |
@@ -49,12 +49,19 @@ _Last updated: navbar restructure, debounced search, centered auth pages, search
 - Added `useDebouncedValue()` and used it in two places: the header search shows bilingual topic suggestions after a 350 ms pause, and `/search` live-updates results/class filter after 450 ms without a submit.
 - Centered the auth pages (`.auth-shell` uses flex `align-items: center; justify-content: center`) and centered the optional Google button inside the card; this covers login, register, forgot/reset and the Google callback.
 - Tightened the mobile bar to brand + account + hamburger; the class picker and theme/language controls remain available on the home page and Settings.
+- Hardened the AI chat integration: network failures now show an actionable “Could not reach the server” message instead of the raw “Failed to fetch”, the companion mutation retries once for genuine network drops, and the backend caps a full free-model fallback run at 75 s.
+- Added a free `SpeakButton` (“Listen” / “শুনুন”) to every companion answer and the visualization companion card. English uses the backend’s OpenRouter free TTS route (`POST /chat/speech`, Fish Audio `:free`); Bangla uses the device’s built-in `bn-BD` voice. Closing the chat stops playback, and only one answer plays at a time.
+- Added `src/lib/speech.js` (LaTeX/Markdown cleanup, browser voice, blob playback) and `src/components/SpeakButton.jsx`; added bilingual voice strings and compact `.chip-speak` styles.
 
 ## Verification
 
 ```bash
 npm run build   # Next.js production build succeeds (19 routes)
 ```
+
+- Chat UI: question → answer bubble → Listen → `/chat/speech` 200 → audio advances (`currentTime` > 0) and the button shows **Stop**.
+- Bangla: Listen makes no network request, calls `speechSynthesis` with `bn-BD`, then resets the button after the utterance ends.
+- Network failures show the friendly backend-unreachable message; the retry only applies to connection failures, never 4xx/5xx responses.
 
 ## Skeleton / placeholder behaviour
 

@@ -36,7 +36,7 @@ Start the backend first (`cd ../backend && npm run dev`).
 
 | Route | Access | Notes |
 | --- | --- | --- |
-| `/` | public | Animated visual-lesson carousel, class picker, features, grounded chat |
+| `/` | public | Animated visual-lesson carousel, class picker, features, grounded chat with free voice playback |
 | `/search` | public | Topic search with class filter and pagination (`?q=&classLevelId=&page=`) |
 | `/about` | public | Mission, what the platform offers, audience |
 | `/contact` | public | Contact form → backend SMTP |

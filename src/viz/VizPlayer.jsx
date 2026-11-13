@@ -5,6 +5,7 @@ import CompanionStage from "@/components/companion/CompanionStage";
 import { useLocale } from "@/providers/locale.provider";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getRenderer } from "./renderers";
+import { normalizeVizSpec } from "./spec";
 
 export default function VizPlayer({
   vizId,
@@ -17,7 +18,8 @@ export default function VizPlayer({
   onAsk,
 }) {
   const { locale, t } = useLocale();
-  const steps = useMemo(() => spec?.steps ?? [], [spec]);
+  const playerSpec = useMemo(() => normalizeVizSpec(spec), [spec]);
+  const steps = useMemo(() => playerSpec?.steps ?? [], [playerSpec]);
   const [index, setIndex] = useState(
     Math.min(Math.max(initialStep, 0), Math.max(steps.length - 1, 0)),
   );
@@ -26,14 +28,29 @@ export default function VizPlayer({
   const [sound, setSound] = useState(soundEnabled);
   const [lang, setLang] = useState(locale);
   const frameRef = useRef(null);
+  const initialisedRef = useRef(false);
 
   const step = steps[index];
-  const Renderer = getRenderer(spec?.renderer ?? "placeholder");
+  const Renderer = getRenderer(playerSpec?.renderer ?? "placeholder");
   const hasSteps = steps.length > 0;
 
   useEffect(() => {
     setLang(locale);
   }, [locale]);
+
+  // The spec arrives asynchronously, so the initial index is applied as soon
+  // as the steps exist rather than being lost on the first render.
+  useEffect(() => {
+    if (initialisedRef.current || !steps.length) return;
+    initialisedRef.current = true;
+    setIndex(Math.min(Math.max(initialStep, 0), steps.length - 1));
+  }, [initialStep, steps.length]);
+
+  useEffect(() => {
+    setIndex((current) =>
+      Math.min(current, Math.max(steps.length - 1, 0)),
+    );
+  }, [steps.length]);
 
   useEffect(() => {
     if (!playing || !hasSteps) return undefined;
@@ -95,16 +112,16 @@ export default function VizPlayer({
       <header className="viz-head">
         <div>
           <span className="eyebrow">{t("topic.visualization")}</span>
-          <h2>{spec?.title?.[lang] ?? vizId ?? "Visualization player"}</h2>
+          <h2>{playerSpec?.title?.[lang] ?? vizId ?? "Visualization player"}</h2>
         </div>
         <div className="viz-meta">
-          <span className="badge">{spec?.kind ?? "stepper"}</span>
-          <span className="badge">{spec?.renderer ?? "placeholder"}</span>
+          <span className="badge">{playerSpec?.kind ?? "stepper"}</span>
+          <span className="badge">{playerSpec?.renderer ?? "placeholder"}</span>
         </div>
       </header>
 
       <div className="viz-stage">
-        <Renderer step={step} lang={lang} spec={spec} sound={sound} />
+        <Renderer step={step} lang={lang} spec={playerSpec} sound={sound} />
       </div>
 
       {companionMode ? (

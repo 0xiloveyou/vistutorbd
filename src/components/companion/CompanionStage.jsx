@@ -2,8 +2,10 @@
 
 import RichMathText from "@/components/RichMathText";
 import MathFormula from "@/components/MathFormula";
+import SpeakButton from "@/components/SpeakButton";
 import { useAskCompanion } from "@/hooks";
 import { apiErrorMessage } from "@/lib/apiClient";
+import { stopSpeech } from "@/lib/speech";
 import { useClassSelection } from "@/providers/class.provider";
 import { useCompanion } from "@/providers/companion.provider";
 import { useLocale } from "@/providers/locale.provider";
@@ -47,6 +49,7 @@ export default function CompanionStage({
   useEffect(() => {
     setAnswer("");
     setError("");
+    stopSpeech();
   }, [stepIndex]);
 
   const explain = async () => {
@@ -108,6 +111,7 @@ export default function CompanionStage({
         {answer ? (
           <div className="companion-answer">
             <RichMathText text={answer} />
+            <SpeakButton text={answer} />
           </div>
         ) : (
           <p className="muted companion-stage-hint">{t("companion.hint")}</p>

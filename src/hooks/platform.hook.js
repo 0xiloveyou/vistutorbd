@@ -108,7 +108,18 @@ export function useQuizAttempts(chapterId, enabled = true) {
 }
 
 export function useAskCompanion() {
-  return useMutation({ mutationFn: askCompanion });
+  return useMutation({
+    mutationFn: askCompanion,
+    // One automatic retry for transient network failures only. If the server
+    // answered (4xx/5xx), show its message immediately instead of retrying.
+    retry: (failureCount, error) => {
+      const status =
+        error?.response?.status ?? error?.statusCode ?? error?.status;
+      if (status) return false;
+      return failureCount < 1;
+    },
+    retryDelay: 800,
+  });
 }
 
 export function useQuestionTemplates(enabled = true) {

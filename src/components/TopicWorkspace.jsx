@@ -4,7 +4,7 @@ import { getVisualization } from "@/api";
 import { localized } from "@/lib/localized";
 import { useCompanion } from "@/providers/companion.provider";
 import { useLocale } from "@/providers/locale.provider";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import TopicActions from "./TopicActions";
 import VizPlayer from "@/viz/VizPlayer";
 
@@ -60,15 +60,31 @@ export default function TopicWorkspace({ topic }) {
     [setContext],
   );
 
-  const openChat = (index = 0) => {
-    setStepIndex(index);
-    setContext({
-      vizId: activeViz?.vizId,
-      stepIndex: index,
-      topicSlug: topic.slug,
-    });
-    setChatOpen(true);
-  };
+  const openChat = useCallback(
+    (index = 0) => {
+      setStepIndex(index);
+      setContext({
+        vizId: activeViz?.vizId,
+        stepIndex: index,
+        topicSlug: topic.slug,
+      });
+      setChatOpen(true);
+    },
+    [activeViz?.vizId, setChatOpen, setContext, topic.slug],
+  );
+
+  const handleStepChange = useCallback(
+    (index, step) => {
+      setStepIndex(index);
+      setContext({
+        vizId: activeViz?.vizId,
+        stepIndex: index,
+        topicSlug: topic.slug,
+        narration: step?.narration?.[locale] ?? "",
+      });
+    },
+    [activeViz?.vizId, locale, setContext, topic.slug],
+  );
 
   return (
     <div className="topic-workspace">
@@ -103,15 +119,7 @@ export default function TopicWorkspace({ topic }) {
         topicSlug={topic.slug}
         companionMode={mode === "companion"}
         initialStep={activeViz?.vizId === visualizations[0]?.vizId ? topic.progress?.lastStepIndex ?? 0 : 0}
-        onStepChange={(index, step) => {
-          setStepIndex(index);
-          setContext({
-            vizId: activeViz?.vizId,
-            stepIndex: index,
-            topicSlug: topic.slug,
-            narration: step?.narration?.[locale] ?? "",
-          });
-        }}
+        onStepChange={handleStepChange}
         onAsk={openChat}
       />
 
