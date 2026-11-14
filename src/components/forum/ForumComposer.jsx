@@ -5,7 +5,7 @@ import { apiErrorMessage } from "@/lib/apiClient";
 import { insertMathSymbol } from "@/lib/mathSymbols";
 import { useLocale } from "@/providers/locale.provider";
 import { useRef, useState } from "react";
-import RichMathText from "@/components/RichMathText";
+import MathPreview from "@/components/MathPreview";
 import MathSymbolBar from "./MathSymbolBar";
 
 export default function ForumComposer({
@@ -22,6 +22,7 @@ export default function ForumComposer({
 
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
+  const [selection, setSelection] = useState({ start: 0, end: 0 });
   const [imageUrl, setImageUrl] = useState("");
   const [tags, setTags] = useState([]);
   const [customTag, setCustomTag] = useState("");
@@ -61,6 +62,10 @@ export default function ForumComposer({
     );
 
     setBody(result.value);
+    setSelection({
+      start: result.selectionStart,
+      end: result.selectionEnd,
+    });
 
     requestAnimationFrame(() => {
       textarea.focus();
@@ -69,6 +74,22 @@ export default function ForumComposer({
         result.selectionEnd,
       );
     });
+  };
+
+  const syncSelection = (event) => {
+    const { selectionStart, selectionEnd } = event.currentTarget;
+    setSelection({
+      start: selectionStart ?? 0,
+      end: selectionEnd ?? selectionStart ?? 0,
+    });
+  };
+
+  const movePreviewCaret = ({ start, end }) => {
+    setSelection({ start, end });
+    const textarea = bodyRef.current;
+    if (!textarea) return;
+    textarea.focus();
+    textarea.setSelectionRange(start, end);
   };
 
   const submit = async (event) => {
@@ -88,6 +109,7 @@ export default function ForumComposer({
 
       setTitle("");
       setBody("");
+      setSelection({ start: 0, end: 0 });
       setImageUrl("");
       setTags([]);
       setCustomTag("");
@@ -138,7 +160,13 @@ export default function ForumComposer({
         <textarea
           ref={bodyRef}
           value={body}
-          onChange={(event) => setBody(event.target.value)}
+          onChange={(event) => {
+            setBody(event.target.value);
+            syncSelection(event);
+          }}
+          onSelect={syncSelection}
+          onClick={syncSelection}
+          onKeyUp={syncSelection}
           rows={5}
           maxLength={8000}
           required
@@ -147,14 +175,13 @@ export default function ForumComposer({
         <small className="muted">{t("forum.mathHint")}</small>
       </label>
 
-      {body.includes("$") ? (
-        <div className="math-preview" aria-live="polite">
-          <span className="eyebrow">{t("forum.mathPreview")}</span>
-          <div className="math-preview-body">
-            <RichMathText text={body} />
-          </div>
-        </div>
-      ) : null}
+      <MathPreview
+        text={body}
+        label={t("forum.mathPreview")}
+        editable
+        selection={selection}
+        onSelect={movePreviewCaret}
+      />
 
       <label className="field">
         <span>{t("forum.imageUrl")}</span>

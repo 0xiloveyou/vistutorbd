@@ -9,6 +9,7 @@ import { useClassSelection } from "@/providers/class.provider";
 import { useCompanion } from "@/providers/companion.provider";
 import { useLocale } from "@/providers/locale.provider";
 import { useEffect, useRef, useState } from "react";
+import MathPreview from "./MathPreview";
 import RichMathText from "./RichMathText";
 import SpeakButton from "./SpeakButton";
 import MathSymbolBar from "./forum/MathSymbolBar";
@@ -28,6 +29,7 @@ export default function ChatPanel({
   const ask = useAskCompanion();
   const [sessionId, setSessionId] = useState(null);
   const [input, setInput] = useState("");
+  const [selection, setSelection] = useState({ start: 0, end: 0 });
   const [messages, setMessages] = useState([]);
   const [error, setError] = useState("");
   const [imageBusy, setImageBusy] = useState(false);
@@ -47,7 +49,10 @@ export default function ChatPanel({
     if (!question || ask.isPending) return;
 
     setError("");
-    if (typeof override !== "string") setInput("");
+    if (typeof override !== "string") {
+      setInput("");
+      setSelection({ start: 0, end: 0 });
+    }
     setMessages((current) => [...current, { role: "user", content: question }]);
 
     try {
@@ -117,12 +122,30 @@ export default function ChatPanel({
         },
       ]);
       setInput(result.problem);
+      setSelection({ start: result.problem.length, end: result.problem.length });
     } catch (caught) {
       setError(apiErrorMessage(caught, "Could not read the photo."));
     } finally {
       setImageBusy(false);
       if (fileRef.current) fileRef.current.value = "";
     }
+  };
+
+  const syncSelection = (event) => {
+    const { selectionStart, selectionEnd } = event.currentTarget;
+    setSelection({
+      start: selectionStart ?? 0,
+      end: selectionEnd ?? selectionStart ?? 0,
+    });
+  };
+
+  // Moving the caret inside the live preview mirrors it into the textarea.
+  const movePreviewCaret = ({ start, end }) => {
+    setSelection({ start, end });
+    const textarea = inputRef.current;
+    if (!textarea) return;
+    textarea.focus();
+    textarea.setSelectionRange(start, end);
   };
 
   const insertSymbol = (item) => {
@@ -141,6 +164,10 @@ export default function ChatPanel({
     );
 
     setInput(result.value);
+    setSelection({
+      start: result.selectionStart,
+      end: result.selectionEnd,
+    });
 
     requestAnimationFrame(() => {
       textarea.focus();
@@ -256,7 +283,13 @@ export default function ChatPanel({
         <textarea
           ref={inputRef}
           value={input}
-          onChange={(event) => setInput(event.target.value)}
+          onChange={(event) => {
+            setInput(event.target.value);
+            syncSelection(event);
+          }}
+          onSelect={syncSelection}
+          onClick={syncSelection}
+          onKeyUp={syncSelection}
           onKeyDown={(event) => {
             if (event.key === "Enter" && !event.shiftKey) {
               event.preventDefault();
@@ -265,6 +298,14 @@ export default function ChatPanel({
           }}
           rows={2}
           placeholder={t("chat.placeholder")}
+        />
+        <MathPreview
+          text={input}
+          label={t("chat.mathPreview")}
+          compact
+          editable
+          selection={selection}
+          onSelect={movePreviewCaret}
         />
         <div className="chat-compose-actions">
           <input

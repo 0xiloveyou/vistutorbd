@@ -6,6 +6,7 @@ import { insertMathSymbol } from "@/lib/mathSymbols";
 import { useClassSelection } from "@/providers/class.provider";
 import { useLocale } from "@/providers/locale.provider";
 import { useRef, useState } from "react";
+import MathPreview from "@/components/MathPreview";
 import RichMathText from "@/components/RichMathText";
 import MathSymbolBar from "./MathSymbolBar";
 
@@ -32,6 +33,7 @@ export default function ForumPostCard({ post }) {
 
   const [showComments, setShowComments] = useState(false);
   const [comment, setComment] = useState("");
+  const [selection, setSelection] = useState({ start: 0, end: 0 });
   const [anonymous, setAnonymous] = useState(true);
   const [aiAnswer, setAiAnswer] = useState(null);
   const [imageVisible, setImageVisible] = useState(true);
@@ -61,6 +63,7 @@ export default function ForumPostCard({ post }) {
         isAnonymous: !user || anonymous,
       });
       setComment("");
+      setSelection({ start: 0, end: 0 });
       setAnonymous(true);
     } catch (caught) {
       setError(apiErrorMessage(caught, t("forum.commentFailed")));
@@ -82,6 +85,10 @@ export default function ForumPostCard({ post }) {
     );
 
     setComment(result.value);
+    setSelection({
+      start: result.selectionStart,
+      end: result.selectionEnd,
+    });
 
     requestAnimationFrame(() => {
       textarea.focus();
@@ -90,6 +97,22 @@ export default function ForumPostCard({ post }) {
         result.selectionEnd,
       );
     });
+  };
+
+  const syncSelection = (event) => {
+    const { selectionStart, selectionEnd } = event.currentTarget;
+    setSelection({
+      start: selectionStart ?? 0,
+      end: selectionEnd ?? selectionStart ?? 0,
+    });
+  };
+
+  const movePreviewCaret = ({ start, end }) => {
+    setSelection({ start, end });
+    const textarea = commentRef.current;
+    if (!textarea) return;
+    textarea.focus();
+    textarea.setSelectionRange(start, end);
   };
 
   return (
@@ -198,19 +221,25 @@ export default function ForumPostCard({ post }) {
             <textarea
               ref={commentRef}
               value={comment}
-              onChange={(event) => setComment(event.target.value)}
+              onChange={(event) => {
+                setComment(event.target.value);
+                syncSelection(event);
+              }}
+              onSelect={syncSelection}
+              onClick={syncSelection}
+              onKeyUp={syncSelection}
               rows={2}
               maxLength={4000}
               placeholder={t("forum.commentPlaceholder")}
             />
-            {comment.includes("$") ? (
-              <div className="math-preview compact" aria-live="polite">
-                <span className="eyebrow">{t("forum.mathPreview")}</span>
-                <div className="math-preview-body">
-                  <RichMathText text={comment} />
-                </div>
-              </div>
-            ) : null}
+            <MathPreview
+              text={comment}
+              label={t("forum.mathPreview")}
+              compact
+              editable
+              selection={selection}
+              onSelect={movePreviewCaret}
+            />
             <div className="forum-comment-actions">
               <label className="forum-anon-toggle">
                 <input

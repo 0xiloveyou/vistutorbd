@@ -418,27 +418,22 @@ export function insertMathSymbol(value, selectionStart, selectionEnd, item) {
     const baseStart = selected ? start : (previous?.start ?? start);
     const marker = item.kind === "power" ? "^" : "_";
     const body = item.kind === "power" ? item.exponent : item.value;
+    const markerPattern = marker === "^" ? "\\^" : "_";
 
-    if (base) {
-      const replacement = latexFor(`${base}${marker}{${body}}`);
-      const shouldSelectBody = body !== "2" && body !== "3" && body !== "-1";
+    // Editing an existing power/subscript replaces it instead of stacking a
+    // second one (e.g. `$2^{2}$` + xⁿ → `$2^{n}$`, not `$2^{2}^{n}$`).
+    const existing = base?.match(
+      new RegExp(`^(.*)${markerPattern}(?:\\{([^{}]*)\\}|(\\S))$`, "s"),
+    );
+    const content = `${existing ? existing[1] : base || "x"}${marker}{${body}}`;
+    const shouldSelectBody = body !== "2" && body !== "3" && body !== "-1";
 
-      return insertAt(
-        value,
-        baseStart,
-        end,
-        replacement,
-        shouldSelectBody ? body : undefined,
-      );
-    }
-
-    const replacement = latexFor(`x${marker}{${body}}`);
     return insertAt(
       value,
-      start,
+      base ? baseStart : start,
       end,
-      replacement,
-      body !== "2" && body !== "3" && body !== "-1" ? body : undefined,
+      latexFor(content),
+      shouldSelectBody ? body : undefined,
     );
   }
 
