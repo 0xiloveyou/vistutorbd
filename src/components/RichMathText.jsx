@@ -2,7 +2,8 @@
 
 import MathFormula from "./MathFormula";
 
-const SPLIT = /(\$\$[^$]+\$\$|\$[^$]+\$)/g;
+const SPLIT =
+  /(\$\$[\s\S]+?\$\$|\\\[[\s\S]+?\\\]|\$[^$\n]+?\$|\\\([\s\S]+?\\\))/g;
 
 export default function RichMathText({ text }) {
   if (!text) return null;
@@ -17,6 +18,14 @@ export default function RichMathText({ text }) {
             return (
               <MathFormula key={index} formula={part.slice(2, -2)} block />
             );
+          }
+          if (part.startsWith("\\[") && part.endsWith("\\]")) {
+            return (
+              <MathFormula key={index} formula={part.slice(2, -2)} block />
+            );
+          }
+          if (part.startsWith("\\(") && part.endsWith("\\)")) {
+            return <MathFormula key={index} formula={part.slice(2, -2)} />;
           }
           if (part.startsWith("$") && part.endsWith("$")) {
             return <MathFormula key={index} formula={part.slice(1, -1)} />;

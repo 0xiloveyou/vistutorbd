@@ -82,6 +82,35 @@ export default function SettingsPage() {
           </select>
         </label>
 
+        <div className="theme-swatches" role="group" aria-label={t("settings.theme")}>
+          {THEMES.map((item) => {
+            const active = theme === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                className={active ? "theme-swatch active" : "theme-swatch"}
+                onClick={() => setTheme(item.id)}
+                aria-pressed={active}
+              >
+                <span
+                  className="theme-swatch-dot"
+                  aria-hidden="true"
+                  style={{
+                    backgroundImage: `linear-gradient(135deg, ${item.swatch} 0%, ${item.swatch2 ?? item.swatch} 100%)`,
+                  }}
+                />
+                <span>{item.name[locale] ?? item.name.en}</span>
+                {active ? (
+                  <span className="theme-swatch-check" aria-hidden="true">
+                    ✓
+                  </span>
+                ) : null}
+              </button>
+            );
+          })}
+        </div>
+
         <label className="field">
           <span>{t("settings.mode")}</span>
           <select value={mode} onChange={(event) => setMode(event.target.value)}>

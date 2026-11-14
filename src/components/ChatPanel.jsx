@@ -3,6 +3,7 @@
 import { analyzeProblemImage } from "@/api";
 import { useAskCompanion, useGetMe } from "@/hooks";
 import { apiErrorMessage } from "@/lib/apiClient";
+import { insertMathSymbol } from "@/lib/mathSymbols";
 import { stopSpeech } from "@/lib/speech";
 import { useClassSelection } from "@/providers/class.provider";
 import { useCompanion } from "@/providers/companion.provider";
@@ -10,6 +11,7 @@ import { useLocale } from "@/providers/locale.provider";
 import { useEffect, useRef, useState } from "react";
 import RichMathText from "./RichMathText";
 import SpeakButton from "./SpeakButton";
+import MathSymbolBar from "./forum/MathSymbolBar";
 
 export default function ChatPanel({
   vizId,
@@ -30,6 +32,7 @@ export default function ChatPanel({
   const [error, setError] = useState("");
   const [imageBusy, setImageBusy] = useState(false);
   const fileRef = useRef(null);
+  const inputRef = useRef(null);
 
   useEffect(() => () => stopSpeech(), []);
 
@@ -120,6 +123,32 @@ export default function ChatPanel({
       setImageBusy(false);
       if (fileRef.current) fileRef.current.value = "";
     }
+  };
+
+  const insertSymbol = (item) => {
+    const textarea = inputRef.current;
+
+    if (!textarea) {
+      setInput((current) => `${current}${item.label}`);
+      return;
+    }
+
+    const result = insertMathSymbol(
+      input,
+      textarea.selectionStart ?? input.length,
+      textarea.selectionEnd ?? input.length,
+      item,
+    );
+
+    setInput(result.value);
+
+    requestAnimationFrame(() => {
+      textarea.focus();
+      textarea.setSelectionRange(
+        result.selectionStart,
+        result.selectionEnd,
+      );
+    });
   };
 
   return (
@@ -223,7 +252,9 @@ export default function ChatPanel({
       </div>
 
       <div className="chat-compose">
+        <MathSymbolBar onInsert={insertSymbol} compact />
         <textarea
+          ref={inputRef}
           value={input}
           onChange={(event) => setInput(event.target.value)}
           onKeyDown={(event) => {

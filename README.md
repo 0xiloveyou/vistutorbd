@@ -4,6 +4,19 @@ Next.js 15 + React 19 learner client for **MathPlay**, a visualization-first mat
 
 > **Skeleton phase.** All routes, providers, shells and the player/quiz/chat UI are wired. Real chapters, topics and visualization renderers come next. See [`progress.md`](progress.md).
 
+## Latest changes
+
+- Home visual lessons: a 29-slide carousel in `public/visual-lessons.html`, embedded through `src/components/VisualLessons.jsx`, covers Play through Class 12 with play/pause, scrub, speed, keyboard/swipe navigation and mobile dots.
+- Robot-first lessons: eight visuals open with `🤖 Robot explains` before `✏️ Line art`. The carousel places every robot visual first, then sorts the remaining cards by rank.
+- New Class 11–12 visuals: **Chain rule**, **Motion of a particle in a plane**, and **Fundamental Theorem: area and slope are inverses**, alongside first principles, the power rule, antiderivatives and Riemann sums.
+- Themes: eight palettes (indigo, emerald, sunset, rose, ocean, violet, amber, contrast) with light/dark modes and a swatch gallery in Settings.
+- Forum: three shimmer skeleton cards while the first page loads and one while loading more; the count shows “Loading…” instead of `0`, and no dummy post remains in the feed.
+- Forum: the composer is hidden behind a top **New post** button, the feed uses infinite scroll to load more posts at the bottom, and empty forums receive ten seeded starter posts from the backend.
+- Maths toolbar: 135 signs in ten groups (calculator digits, calculator basics, powers/roots, fractions, algebra, geometry, calculus, trigonometry, sets/logic, matrices/complex). It is shared by the forum composer, forum comments and the AI chat.
+- Insertion is caret-aware (a preceding number/variable becomes the base of a power/root/fraction) and the composer/comment box shows a live KaTeX preview.
+- Homepage: removed the inline chat panel; the companion chat is opened from the floating dock button only.
+- `RichMathText` also accepts `\(...\)` and `\[...\]` in addition to `$...$` and `$$...$$`.
+
 ## Setup
 
 ```bash
@@ -36,8 +49,9 @@ Start the backend first (`cd ../backend && npm run dev`).
 
 | Route | Access | Notes |
 | --- | --- | --- |
-| `/` | public | Animated visual-lesson carousel, class picker, features, grounded chat with free voice playback |
+| `/` | public | 29-slide animated visual-lesson carousel, class picker, features; companion chat opens from the floating dock |
 | `/search` | public | Topic search with class filter and pagination (`?q=&classLevelId=&page=`) |
+| `/forum` | public | Top New-post button, infinite post feed, maths toolbar + live preview, comments, Ask AI |
 | `/about` | public | Mission, what the platform offers, audience |
 | `/contact` | public | Contact form → backend SMTP |
 | `/faqs` | public | Expandable frequently asked questions |
@@ -61,13 +75,20 @@ Start the backend first (`cd ../backend && npm run dev`).
 
 The full route → endpoint map is in [`docs/routes.md`](docs/routes.md).
 
+## Visual lessons
+
+- The carousel lives in `public/visual-lessons.html` and is embedded by `src/components/VisualLessons.jsx`; the iframe reports its height back to the parent and clamps it between 520–1800 px.
+- 29 lessons cover Play through Class 12. Eight have two modes, with `🤖 Robot explains` first and `✏️ Line art` second; the carousel puts all robot lessons first, then sorts the rest by rank.
+- Class 11–12 content includes first principles, power rule, chain rule, particle motion, antiderivatives, Riemann sums and the Fundamental Theorem of Calculus.
+- Each lesson supports play/pause, restart, previous/next, speed, progress scrubbing, keyboard arrows and swipe; mobile uses a one-row dot navigator.
+
 ## Structure
 
 ```text
 src/app/
   layout.jsx                   Global providers, header, footer, dock, KaTeX CSS
   page.jsx                     Home
-  globals.css                  Design tokens, 4 palettes × 2 modes, component styles
+  globals.css                  Design tokens, 8 palettes × 2 modes, component styles
   class/[level]/               Class page
   class/[level]/[category]/[chapter]/
   topic/[slug]/                Topic page
@@ -100,13 +121,14 @@ src/routes/index.js            Route constants
 ## Theming and language
 
 - `ThemeProvider` writes `data-theme` and `data-mode` on `<html>`; palettes are pure CSS variables in `globals.css`.
-- Palettes: `indigo`, `emerald`, `sunset`, `contrast` (high contrast). Each supports light and dark.
+- Palettes: `indigo`, `emerald`, `sunset`, `rose`, `ocean`, `violet`, `amber`, `contrast` (high contrast). Each supports light and dark.
 - `LocaleProvider` defaults to **Bangla** (`bn`), keeps `en`/`bn` in `localStorage` and exposes `t(key)`; the header has an English/Bangla switch beside the theme controls. Math stays readable in both languages through KaTeX.
 - A tiny inline script in the root layout restores theme, mode and language before hydration.
 
 ## Notes
 
 - Math rendering uses KaTeX (`MathFormula`, `RichMathText`); answers use a custom textarea + symbol keypad (`MathInput`).
+- The shared maths toolbar data/caret logic lives in `src/lib/mathSymbols.js` and is rendered by `src/components/forum/MathSymbolBar.jsx`.
 - The visualization player accepts any `spec`; unknown renderers fall back to `PlaceholderRenderer`.
 - Guest practice is verified locally; signed-in attempts are re-checked by the backend math engine.
 - No `next.config.mjs` rewrites: browser requests go directly to `NEXT_PUBLIC_API_BASE_URL`.

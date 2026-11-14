@@ -1,16 +1,17 @@
 # Frontend progress
 
-_Last updated: navbar restructure, debounced search, centered auth pages, search, footer, mobile navigation, static/legal pages, visitor tracking and pagination._
+_Last updated: 29-lesson visual carousel with robot-first explanations, eight themes, particle-motion lesson, and forum loading skeletons._
 
 ## Status
 
 | Area | State | Notes |
 | --- | --- | --- |
 | App shell | ✅ | Root layout, global header, footer, floating dock, providers |
-| Theme system | ✅ | 4 palettes (`indigo`, `emerald`, `sunset`, `contrast`) × light/dark, persisted |
+| Theme system | ✅ | 8 palettes (`indigo`, `emerald`, `sunset`, `rose`, `ocean`, `violet`, `amber`, `contrast`) × light/dark, persisted |
 | i18n | ✅ | Bangla default, English switch beside theme controls, `t()` helper, persisted locale |
 | Class selection | ✅ | Bands/levels from the server, persisted in localStorage |
-| Home | ✅ | Hero, class picker, feature cards, grounded chat |
+| Home | ✅ | Hero, class picker, feature cards; grounded chat opens from the floating dock |
+| Home visual lessons | ✅ | 29-slide `public/visual-lessons.html` iframe; robot-first + line art, play/pause/scrub, keyboard/swipe, mobile dots |
 | Class → category → chapter | ✅ | Server-rendered lists, breadcrumbs, practice link |
 | Topic | ✅ | Lesson blocks, KaTeX inline/block math, viz player shell, bookmarks/progress, chat drawer |
 | Visualization player | ✅ | Stepper shell, play/pause, speed, scrub, keyboard shortcuts, EN/BN, placeholder renderer |
@@ -29,11 +30,36 @@ _Last updated: navbar restructure, debounced search, centered auth pages, search
 | About / Contact / FAQs | ✅ | `/about`, `/contact` (posts to backend), `/faqs` accordion |
 | Legal pages | ✅ | `/legal/terms`, `/legal/privacy`, `/legal/disclaimer` |
 | Visitor tracking | ✅ | `VisitorTracker` posts one page view per route to `/analytics/visit` |
-| Pagination | ✅ | Shared `Pagination` used by search, forum and admin users |
+| Pagination | ✅ | Shared `Pagination` used by search and admin users; the forum now uses infinite scroll |
+| Forum | ✅ | Top New-post toggle, infinite post feed, skeleton cards while loading, 135-sign maths toolbar, live KaTeX preview, comments with maths, Ask AI |
+| Maths toolbar | ✅ | Shared `mathSymbols.js` + `MathSymbolBar`; used by forum composer, comments and AI chat |
 | Route/API docs | ✅ | `docs/routes.md` |
 | Backend docs | ✅ | `../backend/docs/api/*` |
 
 ## Latest update
+
+### Visual lessons, themes and loading states
+
+- **Home carousel:** `public/visual-lessons.html` now contains 29 animated lessons from Play to Class 12. `src/components/VisualLessons.jsx` embeds it in a height-reporting iframe on the home page.
+- **Robot explanations:** 8 lessons open with `🤖 Robot explains` first and `✏️ Line art` second: triangle angles, Gauss sum, Pythagoras, `(a + b)²`, difference of squares, chain rule, particle motion, and the Fundamental Theorem. `rebuild()` puts every visual with a robot mode ahead of the rest, then sorts by rank.
+- **Class 11–12 lessons:** added **Chain rule**, **Motion of a particle in a plane**, and **Fundamental Theorem: area and slope are inverses**, joining first principles, the power rule, antiderivatives and Riemann sums. The particle lesson shows a projectile path, position vector `r`, tangent velocity `v`, downward acceleration `a`, and constant `vx`.
+- **Player controls:** play/pause, watch again, previous/next, speed, progress scrub, keyboard arrows, swipe navigation, mobile dots, and per-mode duration. Robot mode keeps the robot on the right with `minX` and avoids covering the graph or formula band.
+- **Themes:** expanded to eight palettes (`indigo`, `emerald`, `sunset`, `rose`, `ocean`, `violet`, `amber`, `contrast`), each with light/dark; Settings shows a swatch gallery and persists the selection.
+- **Forum loading:** `ForumPostSkeleton` renders three shimmer cards while the first page loads, one extra card while loading more, and the post count shows “Loading…” instead of `0`. No dummy post is left in the feed; the skeleton is removed as soon as real posts or an empty/error state is ready.
+
+### Forum and maths input
+
+- **Forum layout:** the composer is no longer rendered on page load. A **New post** button in the feed header opens it, the close button collapses it, and the feed fills the page below. The old forum hero block (kicker, title, subtitle and three feature chips) was removed for a cleaner page.
+- **Infinite feed:** `useForumPosts` now uses `useInfiniteQuery`; the forum page flattens pages, observes a bottom sentinel with `IntersectionObserver`, and appends the next 10 posts automatically (with a manual “Load more posts” fallback).
+- **Seed content:** the backend now seeds 10 starter forum posts with comments when the collection is empty (see `backend/progress.md`).
+- **Maths toolbar:** `src/lib/mathSymbols.js` defines 135 signs in ten groups — calculator digits, basic calculator signs, powers/roots, fractions, algebra, geometry, calculus, trigonometry, sets/logic, and matrices/complex numbers.
+- **Caret-aware insertion:** `insertMathSymbol()` wraps the selected text or the token before the caret. Typing `2` then tapping `x²` produces `$2^{2}$`; tapping `√` after `25` produces `$\sqrt{25}$`; fractions become `$\frac{25}{b}$` with the denominator selected. Templates such as matrices, integrals and sums select their first placeholder.
+- **Live preview:** the composer and every comment box render a KaTeX preview as soon as the text contains `$`, so learners see the real maths sign instead of raw LaTeX.
+- **AI chat toolbar:** the same toolbar sits above the companion composer, so chat questions can use calculator signs, powers, roots, fractions, integrals, matrices and Greek letters.
+- **RichMathText:** now supports `\(...\)` and `\[...\]` as well as `$...$` and `$$...$$`.
+- **Homepage:** removed the always-visible `<ChatPanel />` section. The companion chat now appears from the floating dock/robot button only.
+
+### Earlier navigation work
 
 - Removed the **Home** item from the primary navigation (the brand logo still links home) and added **About**, **Contact** and **FAQs**.
 - Added a persistent search bar in the header and a `/search` page. Results support a class filter, bilingual topic titles/summaries, and pagination with `q` + `classLevelId` preserved.
@@ -62,6 +88,10 @@ npm run build   # Next.js production build succeeds (19 routes)
 - Chat UI: question → answer bubble → Listen → `/chat/speech` 200 → audio advances (`currentTime` > 0) and the button shows **Stop**.
 - Bangla: Listen makes no network request, calls `speechSynthesis` with `bn-BD`, then resets the button after the utterance ends.
 - Network failures show the friendly backend-unreachable message; the retry only applies to connection failures, never 4xx/5xx responses.
+- Forum: opening `/forum` shows the feed + **New post** button (no composer); typing `2`, tapping `x²` and seeing `$2^{2}$` plus the rendered `2²` preview; scrolling the bottom sentinel appends the next page; the comment box and companion chat expose the same toolbar.
+- Forum loading: the first render shows three shimmer cards and a “Loading…” count; after data arrives the skeletons are removed, and load-more adds one skeleton only while the next page is fetching.
+- Visual lessons: `vc-test` registers **29 visuals / 37 modes**; a full 29-slide click-through reports 29 dots, the final slide active, and no console errors. Robot, art and 390 px mobile layouts were checked.
+- `bun run build` (or `npm run build`) completes all 19 routes with the forum bundle at ~213 kB First Load JS.
 
 ## Skeleton / placeholder behaviour
 

@@ -1,24 +1,25 @@
 "use client";
 
-import Pagination from "@/components/Pagination";
 import ForumComposer from "@/components/forum/ForumComposer";
 import ForumPostCard from "@/components/forum/ForumPostCard";
+import ForumPostSkeleton from "@/components/forum/ForumPostSkeleton";
 import { useForumPosts, useForumTags } from "@/hooks";
 import { apiErrorMessage } from "@/lib/apiClient";
 import { useLocale } from "@/providers/locale.provider";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function ForumPage() {
   const { locale, t } = useLocale();
   const [tag, setTag] = useState("");
   const [sort, setSort] = useState("new");
-  const [page, setPage] = useState(1);
+  const [showComposer, setShowComposer] = useState(false);
+  const composerRef = useRef(null);
+  const sentinelRef = useRef(null);
 
   const tagsQuery = useForumTags();
   const postsQuery = useForumPosts({
     ...(tag ? { tag } : {}),
     sort,
-    page,
     limit: 10,
   });
 
@@ -27,58 +28,101 @@ export default function ForumPage() {
   const customTags = popular.filter(
     (item) => !predefined.some((tagItem) => tagItem.id === item.id),
   );
-  const posts = postsQuery.data?.posts ?? [];
+  const posts =
+    postsQuery.data?.pages.flatMap((pageData) => pageData.posts) ?? [];
+  const meta = postsQuery.data?.pages[0]?.meta;
+  const hasNextPage = Boolean(postsQuery.hasNextPage);
+  const loadingMore = postsQuery.isFetchingNextPage;
+
+  useEffect(() => {
+    const node = sentinelRef.current;
+    if (!node) return undefined;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (
+          entries[0]?.isIntersecting &&
+          hasNextPage &&
+          !loadingMore &&
+          !postsQuery.isFetching
+        ) {
+          postsQuery.fetchNextPage();
+        }
+      },
+      { rootMargin: "320px 0px" },
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [hasNextPage, loadingMore, postsQuery.isFetching, postsQuery.fetchNextPage]);
+
+  const openComposer = () => {
+    setShowComposer((current) => !current);
+    requestAnimationFrame(() => {
+      composerRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+  };
 
   return (
     <div className="forum-page">
-      <section className="forum-hero">
-        <span className="eyebrow">{t("forum.kicker")}</span>
-        <h1>{t("forum.title")}</h1>
-        <p className="lead">{t("forum.subtitle")}</p>
-        <div className="forum-hero-points">
-          <span className="chip chip-soft">✍️ {t("forum.pointPost")}</span>
-          <span className="chip chip-soft">🖼 {t("forum.pointImage")}</span>
-          <span className="chip chip-soft">🤖 {t("forum.pointAi")}</span>
+      {showComposer ? (
+        <div ref={composerRef} id="forum-composer">
+          <ForumComposer
+            predefinedTags={predefined}
+            autoFocus
+            onCancel={() => setShowComposer(false)}
+            onCreated={() => {
+              setShowComposer(false);
+              postsQuery.refetch();
+            }}
+          />
         </div>
-      </section>
-
-      <ForumComposer
-        predefinedTags={predefined}
-        onCreated={() => postsQuery.refetch()}
-      />
+      ) : null}
 
       <section className="forum-feed">
         <div className="forum-feed-head">
           <div>
             <h2>{t("forum.latest")}</h2>
             <p className="muted">
-              {t("forum.count", { count: postsQuery.data?.meta?.total ?? 0 })}
+              {postsQuery.isLoading
+                ? t("common.loading")
+                : t("forum.count", { count: meta?.total ?? 0 })}
             </p>
           </div>
 
-          <label className="forum-sort">
-            <span>{t("forum.sort")}</span>
-            <select
-              value={sort}
-              onChange={(event) => {
-                setSort(event.target.value);
-                setPage(1);
-              }}
+          <div className="forum-feed-actions">
+            <button
+              type="button"
+              className={showComposer ? "btn btn-ghost btn-sm" : "btn btn-primary btn-sm"}
+              onClick={openComposer}
+              aria-expanded={showComposer}
+              aria-controls="forum-composer"
             >
-              <option value="new">{t("forum.newest")}</option>
-              <option value="old">{t("forum.oldest")}</option>
-            </select>
-          </label>
+              {showComposer
+                ? `✕ ${t("forum.closeComposer")}`
+                : `✍️ ${t("forum.newPost")}`}
+            </button>
+            <label className="forum-sort">
+              <span>{t("forum.sort")}</span>
+              <select
+                value={sort}
+                onChange={(event) => setSort(event.target.value)}
+              >
+                <option value="new">{t("forum.newest")}</option>
+                <option value="old">{t("forum.oldest")}</option>
+              </select>
+            </label>
+          </div>
         </div>
 
         <div className="forum-tag-filter" aria-label={t("forum.filterByTag")}>
           <button
             type="button"
             className={tag ? "tag-chip" : "tag-chip active"}
-            onClick={() => {
-              setTag("");
-              setPage(1);
-            }}
+            onClick={() => setTag("")}
           >
             {t("forum.allTags")}
           </button>
@@ -88,10 +132,7 @@ export default function ForumPage() {
               key={item.id}
               type="button"
               className={tag === item.id ? "tag-chip active" : "tag-chip"}
-              onClick={() => {
-                setTag(tag === item.id ? "" : item.id);
-                setPage(1);
-              }}
+              onClick={() => setTag(tag === item.id ? "" : item.id)}
             >
               #{locale === "bn" ? item.bn : item.en}
             </button>
@@ -102,19 +143,12 @@ export default function ForumPage() {
               key={item.id}
               type="button"
               className={tag === item.id ? "tag-chip active" : "tag-chip"}
-              onClick={() => {
-                setTag(tag === item.id ? "" : item.id);
-                setPage(1);
-              }}
+              onClick={() => setTag(tag === item.id ? "" : item.id)}
             >
               #{item.id} <small className="muted">{item.count}</small>
             </button>
           ))}
         </div>
-
-        {postsQuery.isLoading ? (
-          <p className="muted">{t("common.loading")}</p>
-        ) : null}
 
         {postsQuery.isError ? (
           <div className="alert alert-error">
@@ -125,23 +159,50 @@ export default function ForumPage() {
         {!postsQuery.isLoading && !postsQuery.isError && !posts.length ? (
           <div className="forum-empty panel">
             <p>{t("forum.empty")}</p>
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              onClick={() => setShowComposer(true)}
+            >
+              ✍️ {t("forum.newPost")}
+            </button>
           </div>
         ) : null}
 
-        <div className="forum-list">
-          {posts.map((post) => (
-            <ForumPostCard key={post.id} post={post} />
-          ))}
-        </div>
+        {postsQuery.isLoading ? (
+          <div
+            className="forum-list"
+            role="status"
+            aria-label={t("common.loading")}
+          >
+            {Array.from({ length: 3 }, (_, index) => (
+              <ForumPostSkeleton key={index} />
+            ))}
+          </div>
+        ) : (
+          <div className="forum-list">
+            {posts.map((post) => (
+              <ForumPostCard key={post.id} post={post} />
+            ))}
+            {loadingMore ? <ForumPostSkeleton /> : null}
+          </div>
+        )}
 
-        <Pagination
-          page={postsQuery.data?.meta?.page ?? page}
-          totalPages={postsQuery.data?.meta?.totalPages ?? 1}
-          onChange={(next) => {
-            setPage(next);
-            window.scrollTo({ top: 0, behavior: "smooth" });
-          }}
-        />
+        <div ref={sentinelRef} className="forum-load-more">
+          {loadingMore ? <span>{t("forum.loadingMore")}</span> : null}
+          {!loadingMore && hasNextPage ? (
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              onClick={() => postsQuery.fetchNextPage()}
+            >
+              ↓ {t("forum.loadMore")}
+            </button>
+          ) : null}
+          {!loadingMore && !hasNextPage && posts.length ? (
+            <small className="muted">{t("forum.endOfFeed")}</small>
+          ) : null}
+        </div>
       </section>
     </div>
   );

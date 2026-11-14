@@ -1,6 +1,5 @@
 "use client";
 
-import ChatPanel from "@/components/ChatPanel";
 import ClassPicker from "@/components/ClassPicker";
 import { localized } from "@/lib/localized";
 import { useClassSelection } from "@/providers/class.provider";
@@ -58,9 +57,6 @@ export default function HomePage() {
         ))}
       </section>
 
-      <section className="home-chat">
-        <ChatPanel />
-      </section>
     </>
   );
 }

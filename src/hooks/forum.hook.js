@@ -7,12 +7,23 @@ import {
   getForumPosts,
   getForumTags,
 } from "@/api";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 export function useForumPosts(params) {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ["forum-posts", params],
-    queryFn: () => getForumPosts(params),
+    queryFn: ({ pageParam }) => getForumPosts({ ...params, page: pageParam }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      const page = lastPage?.meta?.page ?? 1;
+      const totalPages = lastPage?.meta?.totalPages ?? 1;
+      return page < totalPages ? page + 1 : undefined;
+    },
     staleTime: 15_000,
   });
 }

@@ -1,15 +1,19 @@
 "use client";
 
-import { useRegistration } from "@/hooks";
+import { useGoogleOAuth, useRegistration } from "@/hooks";
 import { apiErrorMessage } from "@/lib/apiClient";
 import { useLocale } from "@/providers/locale.provider";
+import { GoogleLogin } from "@react-oauth/google";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+const googleEnabled = Boolean(process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
+
 export default function RegisterForm() {
   const router = useRouter();
   const registration = useRegistration();
+  const google = useGoogleOAuth();
   const { t } = useLocale();
   const [form, setForm] = useState({
     name: "",
@@ -28,6 +32,17 @@ export default function RegisterForm() {
       router.push("/verify-account");
     } catch (caught) {
       setError(apiErrorMessage(caught, t("auth.registerFailed")));
+    }
+  };
+
+  const handleGoogle = async (credentialResponse) => {
+    setError("");
+    try {
+      await google.mutateAsync({ idToken: credentialResponse.credential });
+      router.push("/");
+      router.refresh();
+    } catch (caught) {
+      setError(apiErrorMessage(caught, t("auth.googleFailed")));
     }
   };
 
@@ -89,6 +104,17 @@ export default function RegisterForm() {
       >
         {registration.isPending ? t("auth.sendingOtp") : t("common.register")}
       </button>
+
+      {googleEnabled ? (
+        <div className="auth-google">
+          <GoogleLogin
+            onSuccess={handleGoogle}
+            onError={() => setError(t("auth.googleFailed"))}
+            theme="filled_black"
+            shape="pill"
+          />
+        </div>
+      ) : null}
 
       <div className="auth-links">
         <Link href="/login">{t("auth.alreadyAccount")}</Link>

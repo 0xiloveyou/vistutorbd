@@ -2,10 +2,12 @@
 
 import { useAskForumAi, useCreateForumComment, useGetMe } from "@/hooks";
 import { apiErrorMessage } from "@/lib/apiClient";
+import { insertMathSymbol } from "@/lib/mathSymbols";
 import { useClassSelection } from "@/providers/class.provider";
 import { useLocale } from "@/providers/locale.provider";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import RichMathText from "@/components/RichMathText";
+import MathSymbolBar from "./MathSymbolBar";
 
 const formatDate = (value, locale) => {
   try {
@@ -26,6 +28,7 @@ export default function ForumPostCard({ post }) {
 
   const askAi = useAskForumAi(post.id);
   const addComment = useCreateForumComment(post.id);
+  const commentRef = useRef(null);
 
   const [showComments, setShowComments] = useState(false);
   const [comment, setComment] = useState("");
@@ -62,6 +65,31 @@ export default function ForumPostCard({ post }) {
     } catch (caught) {
       setError(apiErrorMessage(caught, t("forum.commentFailed")));
     }
+  };
+
+  const insertCommentSymbol = (item) => {
+    const textarea = commentRef.current;
+    if (!textarea) {
+      setComment((current) => `${current}${item.label}`);
+      return;
+    }
+
+    const result = insertMathSymbol(
+      comment,
+      textarea.selectionStart ?? comment.length,
+      textarea.selectionEnd ?? comment.length,
+      item,
+    );
+
+    setComment(result.value);
+
+    requestAnimationFrame(() => {
+      textarea.focus();
+      textarea.setSelectionRange(
+        result.selectionStart,
+        result.selectionEnd,
+      );
+    });
   };
 
   return (
@@ -166,13 +194,23 @@ export default function ForumPostCard({ post }) {
           )}
 
           <form className="forum-comment-form" onSubmit={submitComment}>
+            <MathSymbolBar onInsert={insertCommentSymbol} compact />
             <textarea
+              ref={commentRef}
               value={comment}
               onChange={(event) => setComment(event.target.value)}
               rows={2}
               maxLength={4000}
               placeholder={t("forum.commentPlaceholder")}
             />
+            {comment.includes("$") ? (
+              <div className="math-preview compact" aria-live="polite">
+                <span className="eyebrow">{t("forum.mathPreview")}</span>
+                <div className="math-preview-body">
+                  <RichMathText text={comment} />
+                </div>
+              </div>
+            ) : null}
             <div className="forum-comment-actions">
               <label className="forum-anon-toggle">
                 <input

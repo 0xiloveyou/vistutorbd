@@ -2,11 +2,18 @@
 
 import { useCreateForumPost, useGetMe } from "@/hooks";
 import { apiErrorMessage } from "@/lib/apiClient";
+import { insertMathSymbol } from "@/lib/mathSymbols";
 import { useLocale } from "@/providers/locale.provider";
 import { useRef, useState } from "react";
+import RichMathText from "@/components/RichMathText";
 import MathSymbolBar from "./MathSymbolBar";
 
-export default function ForumComposer({ predefinedTags = [], onCreated }) {
+export default function ForumComposer({
+  predefinedTags = [],
+  onCreated,
+  onCancel,
+  autoFocus = false,
+}) {
   const { locale, t } = useLocale();
   const { data } = useGetMe();
   const user = data?.data;
@@ -38,21 +45,29 @@ export default function ForumComposer({ predefinedTags = [], onCreated }) {
     setCustomTag("");
   };
 
-  const insertSymbol = (token) => {
+  const insertSymbol = (item) => {
     const textarea = bodyRef.current;
+
     if (!textarea) {
-      setBody((current) => `${current}${token}`);
+      setBody((current) => `${current}${item.label}`);
       return;
     }
 
-    const start = textarea.selectionStart ?? body.length;
-    const end = textarea.selectionEnd ?? body.length;
-    const next = `${body.slice(0, start)}${token}${body.slice(end)}`;
-    setBody(next);
+    const result = insertMathSymbol(
+      body,
+      textarea.selectionStart ?? body.length,
+      textarea.selectionEnd ?? body.length,
+      item,
+    );
+
+    setBody(result.value);
 
     requestAnimationFrame(() => {
       textarea.focus();
-      textarea.setSelectionRange(start + token.length, start + token.length);
+      textarea.setSelectionRange(
+        result.selectionStart,
+        result.selectionEnd,
+      );
     });
   };
 
@@ -90,7 +105,19 @@ export default function ForumComposer({ predefinedTags = [], onCreated }) {
           <span className="eyebrow">{t("forum.composeKicker")}</span>
           <h2>{t("forum.compose")}</h2>
         </div>
-        <span className="chip chip-soft">{t("forum.anonymousOrName")}</span>
+        <div className="forum-composer-head-actions">
+          <span className="chip chip-soft">{t("forum.anonymousOrName")}</span>
+          {onCancel ? (
+            <button
+              type="button"
+              className="chip"
+              onClick={onCancel}
+              aria-label={t("forum.closeComposer")}
+            >
+              ✕ {t("forum.closeComposer")}
+            </button>
+          ) : null}
+        </div>
       </div>
 
       <label className="field">
@@ -100,6 +127,7 @@ export default function ForumComposer({ predefinedTags = [], onCreated }) {
           onChange={(event) => setTitle(event.target.value)}
           maxLength={160}
           required
+          autoFocus={autoFocus}
           placeholder={t("forum.postTitlePlaceholder")}
         />
       </label>
@@ -118,6 +146,15 @@ export default function ForumComposer({ predefinedTags = [], onCreated }) {
         />
         <small className="muted">{t("forum.mathHint")}</small>
       </label>
+
+      {body.includes("$") ? (
+        <div className="math-preview" aria-live="polite">
+          <span className="eyebrow">{t("forum.mathPreview")}</span>
+          <div className="math-preview-body">
+            <RichMathText text={body} />
+          </div>
+        </div>
+      ) : null}
 
       <label className="field">
         <span>{t("forum.imageUrl")}</span>
