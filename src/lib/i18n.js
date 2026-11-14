@@ -15,6 +15,7 @@ export const dictionary = {
     "common.admin": "Admin",
     "common.moderator": "Moderator",
     "common.home": "Home",
+    "common.learn": "Learn",
     "common.forum": "Forum",
     "common.loading": "Loading…",
     "common.save": "Save",
@@ -108,15 +109,14 @@ export const dictionary = {
     "home.assistantTitle": "Ask the math assistant",
     "home.assistantIntro":
       "Ask a question, or upload a photo of a problem. Answers are grounded in the platform's own lessons.",
-    "home.featureVisual": "Visual first",
-    "home.featureVisualText":
-      "Every topic is designed around a reusable step-by-step visualization.",
-    "home.featureBilingual": "English + Bangla",
-    "home.featureBilingualText":
-      "Switch language anywhere. Math stays readable in both.",
-    "home.featureQuiz": "Practice that adapts",
-    "home.featureQuizText":
-      "Timed MCQ or typed answers, with a real math engine checking every number.",
+    "learn.kicker": "LEARN · BY CLASS",
+    "learn.title": "Learn by class",
+    "learn.subtitle":
+      "Pick a class to open its categories and chapters, then follow a lesson step by step.",
+    "learn.allClasses": "All classes",
+    "learn.pickPrompt":
+      "No class selected yet — pick one below to start learning.",
+    "learn.openClass": "Open lessons →",
     "class.categories": "Categories",
     "class.chapters": "Chapters",
     "class.topics": "Topics",
@@ -342,6 +342,7 @@ export const dictionary = {
     "common.admin": "অ্যাডমিন",
     "common.moderator": "মডারেটর",
     "common.home": "হোম",
+    "common.learn": "শিখুন",
     "common.forum": "ফোরাম",
     "common.loading": "লোড হচ্ছে…",
     "common.save": "সংরক্ষণ",
@@ -435,15 +436,14 @@ export const dictionary = {
     "home.assistantTitle": "গণিত সহকারীকে জিজ্ঞাসা করুন",
     "home.assistantIntro":
       "প্রশ্ন করুন, বা সমস্যার ছবি আপলোড করুন। উত্তর প্ল্যাটফর্মের নিজস্ব পাঠ থেকে নেওয়া হয়।",
-    "home.featureVisual": "প্রথমে দৃশ্য",
-    "home.featureVisualText":
-      "প্রতিটি টপিক পুনরায় ব্যবহারযোগ্য ধাপে ধাপে ভিজ্যুয়ালাইজেশনকে ঘিরে সাজানো।",
-    "home.featureBilingual": "ইংরেজি + বাংলা",
-    "home.featureBilingualText":
-      "যেকোনো জায়গায় ভাষা বদলান। গণিত দুই ভাষাতেই পড়া যায়।",
-    "home.featureQuiz": "অভিযোজিত অনুশীলন",
-    "home.featureQuizText":
-      "সময়সীমাসহ এমসিকিউ বা টাইপ করা উত্তর; প্রতিটি সংখ্যা গণিত ইঞ্জিন যাচাই করে।",
+    "learn.kicker": "শেখা · শ্রেণি অনুযায়ী",
+    "learn.title": "শ্রেণি অনুযায়ী শিখুন",
+    "learn.subtitle":
+      "একটি শ্রেণি বেছে নিয়ে তার বিভাগ ও অধ্যায় খুলুন, তারপর ধাপে ধাপে পাঠ অনুসরণ করুন।",
+    "learn.allClasses": "সব শ্রেণি",
+    "learn.pickPrompt":
+      "এখনো কোনো শ্রেণি বেছে নেননি — শুরু করতে নিচ থেকে একটি বেছে নিন।",
+    "learn.openClass": "পাঠ খুলুন →",
     "class.categories": "বিভাগসমূহ",
     "class.chapters": "অধ্যায়সমূহ",
     "class.topics": "টপিকসমূহ",

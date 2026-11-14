@@ -173,6 +173,7 @@ export default function SiteHeader() {
           className={menuOpen ? "header-nav open" : "header-nav"}
           aria-label="Main"
         >
+          {navLink("/learn", t("common.learn"))}
           {navLink("/forum", t("common.forum"))}
           {navLink("/bookmarks", t("common.bookmarks"))}
           {navLink("/about", t("common.about"))}

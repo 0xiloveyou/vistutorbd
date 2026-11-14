@@ -7,6 +7,7 @@ const ClassContext = createContext(null);
 export function ClassProvider({ bands = [], children }) {
   const [bandId, setBandId] = useState(null);
   const [levelId, setLevelId] = useState(null);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     try {
@@ -15,6 +16,7 @@ export function ClassProvider({ bands = [], children }) {
       if (storedBand) setBandId(storedBand);
       if (storedLevel) setLevelId(storedLevel);
     } catch {}
+    setReady(true);
   }, []);
 
   const select = useCallback((nextBandId, nextLevelId) => {
@@ -37,8 +39,8 @@ export function ClassProvider({ bands = [], children }) {
   );
 
   const value = useMemo(
-    () => ({ bands, bandId, levelId, band, level, select }),
-    [bands, bandId, levelId, band, level, select],
+    () => ({ bands, bandId, levelId, band, level, ready, select }),
+    [bands, bandId, levelId, band, level, ready, select],
   );
 
   return <ClassContext.Provider value={value}>{children}</ClassContext.Provider>;

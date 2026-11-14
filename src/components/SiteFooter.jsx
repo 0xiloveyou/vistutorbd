@@ -11,6 +11,7 @@ export default function SiteFooter() {
     {
       title: t("footer.explore"),
       links: [
+        { href: "/learn", label: t("common.learn") },
         { href: "/search", label: t("common.search") },
         { href: "/forum", label: t("common.forum") },
         { href: "/bookmarks", label: t("common.bookmarks") },
