@@ -1,13 +1,14 @@
-# MathPlay — Frontend
+# VizTutorBD — Frontend
 
-Next.js 15 + React 19 learner client for **MathPlay**, a visualization-first math platform for Play, Nursery and Class 1–12 in English and Bangla. It talks to the Express/MongoDB backend in `../backend` at `/api/v1`.
+Next.js 15 + React 19 learner client for **VizTutorBD**, a visualization-first math platform for Play, Nursery and Class 1–12 in English and Bangla. It talks to the Express/MongoDB backend in `../vistutorbd-backend` at `/api/v1`.
 
 > **Skeleton phase.** All routes, providers, shells and the player/quiz/chat UI are wired. Real chapters, topics and visualization renderers come next. See [`progress.md`](progress.md).
 
 ## Latest changes
 
-- Home visual lessons: a 29-slide carousel in `public/visual-lessons.html`, embedded through `src/components/VisualLessons.jsx`, covers Play through Class 12 with play/pause, scrub, speed, keyboard/swipe navigation and mobile dots.
-- Robot-first lessons: eight visuals open with `🤖 Robot explains` before `✏️ Line art`. The carousel places every robot visual first, then sorts the remaining cards by rank.
+- Home visual lessons: a class-aware carousel served from MongoDB through `/api/v1/learn/*` and embedded by `src/components/VisualLessons.jsx`, with play/pause, scrub, speed, keyboard/swipe navigation and mobile dots.
+- Class 9–10 visual lab: 14 lessons (11 robot explainers + 3 explore/line-art lessons) with a featured hero and live controls for logarithms, circle angles, elevation, similarity, series, mensuration and more.
+- Robot-first lessons: every visual with a robot mode is placed before the rest, then sorted by rank. The home carousel requests the selected class and prefers its class-specific carousel over the generic one.
 - New Class 11–12 visuals: **Chain rule**, **Motion of a particle in a plane**, and **Fundamental Theorem: area and slope are inverses**, alongside first principles, the power rule, antiderivatives and Riemann sums.
 - Themes: eight palettes (indigo, emerald, sunset, rose, ocean, violet, amber, contrast) with light/dark modes and a swatch gallery in Settings.
 - Forum: three shimmer skeleton cards while the first page loads and one while loading more; the count shows “Loading…” instead of `0`, and no dummy post remains in the feed.
@@ -49,7 +50,8 @@ Start the backend first (`cd ../backend && npm run dev`).
 
 | Route | Access | Notes |
 | --- | --- | --- |
-| `/` | public | 29-slide animated visual-lesson carousel, class picker, features; companion chat opens from the floating dock |
+| `/` | public | Class-aware visual-lesson carousel, class picker, features; companion chat opens from the floating dock |
+| `/learn` | public | Class picker, explanation and question carousels for the selected class |
 | `/search` | public | Topic search with class filter and pagination (`?q=&classLevelId=&page=`) |
 | `/forum` | public | Top New-post button, infinite post feed, maths toolbar + live preview, comments, Ask AI |
 | `/about` | public | Mission, what the platform offers, audience |
@@ -77,10 +79,11 @@ The full route → endpoint map is in [`docs/routes.md`](docs/routes.md).
 
 ## Visual lessons
 
-- The carousel lives in `public/visual-lessons.html` and is embedded by `src/components/VisualLessons.jsx`; the iframe reports its height back to the parent and clamps it between 520–1800 px.
-- 29 lessons cover Play through Class 12. Eight have two modes, with `🤖 Robot explains` first and `✏️ Line art` second; the carousel puts all robot lessons first, then sorts the rest by rank.
-- Class 11–12 content includes first principles, power rule, chain rule, particle motion, antiderivatives, Riemann sums and the Fundamental Theorem of Calculus.
+- Carousel HTML lives in `../vistutorbd-backend/src/app/content/carousels/` and is seeded into MongoDB by `seed-learn-carousels.ts`; the client never serves it as a static file.
+- `VisualLessons.jsx` requests explanations for the selected class, prefers a class-specific carousel over the generic `explanation-all` document, and embeds it through `SecureCarouselFrame`, which reports the iframe height back to the parent.
+- The generic carousel has 29 lessons from Play to Class 12. The Class 9–10 carousel adds 14 lessons: 11 robot-led explanations with line-art modes and 3 explore/line-art lessons.
 - Each lesson supports play/pause, restart, previous/next, speed, progress scrubbing, keyboard arrows and swipe; mobile uses a one-row dot navigator.
+- `/learn` applies the same priority: a class-specific explanation carousel replaces the generic one when it exists.
 
 ## Structure
 

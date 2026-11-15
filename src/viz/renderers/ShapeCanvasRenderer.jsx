@@ -2,6 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { pick, speak } from "./shared";
+import ShapeConcept from "./scene/ShapeConcept";
+
+const CONCEPT_MODES = new Set(["line-symmetry", "rotational", "circular"]);
+
+export default function ShapeCanvasRenderer(props) {
+  const mode = props.spec?.data?.mode;
+  if (CONCEPT_MODES.has(mode)) {
+    return <ShapeConcept {...props} />;
+  }
+  return <PlayShapeCanvas {...props} />;
+}
 
 const COLORS = ["#f59e0b", "#3b82f6", "#10b981", "#ec4899", "#8b5cf6"];
 const BIN_TYPES = ["circle", "triangle", "square"];
@@ -44,7 +55,7 @@ function Shape({ type = "circle", size = 90, color = "var(--accent)", face = fal
   );
 }
 
-export default function ShapeCanvasRenderer({ step, lang, spec, sound = true }) {
+function PlayShapeCanvas({ step, lang, spec, sound = true }) {
   const data = { ...(spec?.data ?? {}), ...(step?.data ?? {}) };
   const mode = data.mode ?? "friends";
   const shapes = data.shapes ?? [];

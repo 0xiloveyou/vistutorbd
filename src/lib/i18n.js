@@ -117,6 +117,25 @@ export const dictionary = {
     "learn.pickPrompt":
       "No class selected yet — pick one below to start learning.",
     "learn.openClass": "Open lessons →",
+    "learn.currentClass": "Current class",
+    "learn.sections": "Learn sections",
+    "learn.explanations": "Explanations",
+    "learn.questions": "Q&A",
+    "learn.topics": "All topics",
+    "learn.explanationsTitle": "Visual explanations",
+    "learn.explanationsSubtitle":
+      "Robot-guided and line-art walkthroughs. Play, pause, swipe and switch styles.",
+    "learn.questionsTitle": "Questions and answers",
+    "learn.questionsSubtitle":
+      "Tap-through games and short questions for this class, with instant feedback.",
+    "learn.questionsEmptyTitle": "No question carousel yet",
+    "learn.questionsEmpty":
+      "This class has explanations and topics, but no question-and-answer carousel has been added.",
+    "learn.topicsTitle": "All topics in this class",
+    "learn.topicsSubtitle":
+      "Open any topic for its lesson blocks and visualization.",
+    "learn.carouselUnavailable":
+      "This carousel could not be loaded. Check the connection and try again.",
     "class.categories": "Categories",
     "class.chapters": "Chapters",
     "class.topics": "Topics",

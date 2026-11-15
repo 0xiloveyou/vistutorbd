@@ -2,8 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { pick, range, speak } from "./shared";
+import NumberGridConcept from "./scene/NumberGridConcept";
 
-export default function NumberGridRenderer({ step, lang, spec, sound = true }) {
+const CONCEPT_MODES = new Set(["pascal", "pascal-identity", "permutation", "series"]);
+
+export default function NumberGridRenderer(props) {
+  const mode = props.spec?.data?.mode;
+  if (CONCEPT_MODES.has(mode)) {
+    return <NumberGridConcept {...props} />;
+  }
+  return <PlayNumberGrid {...props} />;
+}
+
+function PlayNumberGrid({ step, lang, spec, sound = true }) {
   const data = { ...(spec?.data ?? {}), ...(step?.data ?? {}) };
   const max = data.max ?? 10;
   const highlight = new Set(data.highlight ?? []);

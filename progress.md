@@ -1,6 +1,6 @@
 # Frontend progress
 
-_Last updated: 29-lesson visual carousel with robot-first explanations, eight themes, particle-motion lesson, and forum loading skeletons._
+_Last updated: Class 9–10 visual lab, class-aware home carousel, 29-lesson generic carousel with robot-first explanations, eight themes, particle-motion lesson, and forum loading skeletons._
 
 ## Status
 
@@ -11,7 +11,7 @@ _Last updated: 29-lesson visual carousel with robot-first explanations, eight th
 | i18n | ✅ | Bangla default, English switch beside theme controls, `t()` helper, persisted locale |
 | Class selection | ✅ | Bands/levels from the server, persisted in localStorage |
 | Home | ✅ | Hero, class picker, feature cards; grounded chat opens from the floating dock |
-| Home visual lessons | ✅ | 29-slide `public/visual-lessons.html` iframe; robot-first + line art, play/pause/scrub, keyboard/swipe, mobile dots |
+| Home visual lessons | ✅ | Class-aware MongoDB carousels via `/learn`; generic explanation carousel + Class 9–10 lab; robot-first + line art, play/pause/scrub, keyboard/swipe, mobile dots |
 | Class → category → chapter | ✅ | Server-rendered lists, breadcrumbs, practice link |
 | Topic | ✅ | Lesson blocks, KaTeX inline/block math, viz player shell, bookmarks/progress, chat drawer |
 | Visualization player | ✅ | Stepper shell, play/pause, speed, scrub, keyboard shortcuts, EN/BN, placeholder renderer |
@@ -38,9 +38,16 @@ _Last updated: 29-lesson visual carousel with robot-first explanations, eight th
 
 ## Latest update
 
+### Class 9–10 visual lab and class-aware home carousel
+
+- Added the `explanation-class-9-10` carousel: a featured hero plus **14** lessons (11 robot explainers with line-art modes, 3 explore/line-art lessons) covering real numbers, sets/functions, exponents and logarithms, linear equations, exterior and inscribed angles, trig waves, elevation, similar triangles, simultaneous equations, geometric series, mensuration, ogives and Heron's formula.
+- `VisualLessons.jsx` now reads the selected class from `useClassSelection()`, requests that class's explanations, and prefers a class-specific carousel over the generic `explanation-all` one. The query key includes the class id, so changing class refetches.
+- `/learn` shows class-specific explanation carousels when present and falls back to the generic explanation carousel otherwise.
+- Carousel HTML now lives in `vistutorbd-backend/src/app/content/carousels/` and is seeded into MongoDB; the old `public/visual-lessons.html` path is no longer used.
+
 ### Visual lessons, themes and loading states
 
-- **Home carousel:** `public/visual-lessons.html` now contains 29 animated lessons from Play to Class 12. `src/components/VisualLessons.jsx` embeds it in a height-reporting iframe on the home page.
+- **Home carousel:** the generic explanation carousel and the Class 9–10 lab are stored in MongoDB and embedded by `src/components/VisualLessons.jsx` through a height-reporting iframe.
 - **Robot explanations:** 8 lessons open with `🤖 Robot explains` first and `✏️ Line art` second: triangle angles, Gauss sum, Pythagoras, `(a + b)²`, difference of squares, chain rule, particle motion, and the Fundamental Theorem. `rebuild()` puts every visual with a robot mode ahead of the rest, then sorts by rank.
 - **Class 11–12 lessons:** added **Chain rule**, **Motion of a particle in a plane**, and **Fundamental Theorem: area and slope are inverses**, joining first principles, the power rule, antiderivatives and Riemann sums. The particle lesson shows a projectile path, position vector `r`, tangent velocity `v`, downward acceleration `a`, and constant `vx`.
 - **Player controls:** play/pause, watch again, previous/next, speed, progress scrub, keyboard arrows, swipe navigation, mobile dots, and per-mode duration. Robot mode keeps the robot on the right with `minX` and avoids covering the graph or formula band.
@@ -90,7 +97,7 @@ npm run build   # Next.js production build succeeds (19 routes)
 - Network failures show the friendly backend-unreachable message; the retry only applies to connection failures, never 4xx/5xx responses.
 - Forum: opening `/forum` shows the feed + **New post** button (no composer); typing `2`, tapping `x²` and seeing `$2^{2}$` plus the rendered `2²` preview; scrolling the bottom sentinel appends the next page; the comment box and companion chat expose the same toolbar.
 - Forum loading: the first render shows three shimmer cards and a “Loading…” count; after data arrives the skeletons are removed, and load-more adds one skeleton only while the next page is fetching.
-- Visual lessons: `vc-test` registers **29 visuals / 37 modes**; a full 29-slide click-through reports 29 dots, the final slide active, and no console errors. Robot, art and 390 px mobile layouts were checked.
+- Visual lessons: `vc-test` registers **29 visuals / 37 modes** in the generic carousel; the Class 9–10 lab registers **14 visuals / 25 modes** and its frame harness renders all 325 frames without errors. Robot, art and 390 px mobile layouts were checked, including the log, inscribed-angle, similar-triangle and geometric-series labels.
 - `bun run build` (or `npm run build`) completes all 19 routes with the forum bundle at ~213 kB First Load JS.
 
 ## Skeleton / placeholder behaviour

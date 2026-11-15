@@ -1,38 +1,51 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { getLearnCarousels } from "@/api";
+import { useClassSelection } from "@/providers/class.provider";
+import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
+import SecureCarouselFrame from "./SecureCarouselFrame";
 
 export default function VisualLessons() {
-  const frameRef = useRef(null);
-  const [height, setHeight] = useState(900);
+  const { level } = useClassSelection();
+  const query = useQuery({
+    queryKey: ["home-explanation-carousel", level?.id ?? null],
+    queryFn: () =>
+      getLearnCarousels({
+        kind: "EXPLANATION",
+        ...(level?.id ? { classLevelId: level.id } : {}),
+      }),
+    staleTime: 5 * 60 * 1000,
+  });
 
-  useEffect(() => {
-    const onMessage = (event) => {
-      if (
-        event.origin !== window.location.origin ||
-        event.source !== frameRef.current?.contentWindow ||
-        event.data?.type !== "visual-lessons-height"
-      ) return;
+  const carousel = useMemo(() => {
+    const list = query.data ?? [];
+    if (level?.id) {
+      const specific = list.find((item) =>
+        item.classLevelIds?.includes(level.id),
+      );
+      if (specific) return specific;
+    }
+    return list[0];
+  }, [query.data, level?.id]);
 
-      const nextHeight = Number(event.data.height);
-      if (Number.isFinite(nextHeight)) {
-        setHeight(Math.min(1800, Math.max(520, nextHeight)));
-      }
-    };
+  if (query.isLoading) {
+    return (
+      <section className="home-visual-lessons" aria-label="Interactive visual lessons">
+        <div className="learn-carousel-skeleton" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </div>
+      </section>
+    );
+  }
 
-    window.addEventListener("message", onMessage);
-    return () => window.removeEventListener("message", onMessage);
-  }, []);
+  if (!carousel) return null;
 
   return (
     <section className="home-visual-lessons" aria-label="Interactive visual lessons">
-      <iframe
-        ref={frameRef}
-        src="/visual-lessons.html"
-        title="Interactive animated math lessons"
-        loading="eager"
-        style={{ height }}
-      />
+      <SecureCarouselFrame slug={carousel.slug} title={carousel.title?.en} />
     </section>
   );
 }

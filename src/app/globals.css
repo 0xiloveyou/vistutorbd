@@ -915,6 +915,192 @@ code,
   padding: var(--space-4) 0;
 }
 
+/* Learn page: class heading, floating section toggles, carousels and topics */
+.learn-class-heading {
+  margin: var(--space-5) 0 var(--space-3);
+}
+
+.learn-class-heading h2 {
+  margin: 0;
+}
+
+.learn-section {
+  margin: var(--space-6) 0;
+  scroll-margin-top: 90px;
+}
+
+.learn-section.is-hidden {
+  display: none;
+}
+
+.learn-section-head {
+  margin-bottom: var(--space-3);
+}
+
+.learn-section-head h2 {
+  margin: 0 0 4px;
+}
+
+.learn-section-head p {
+  margin: 0;
+}
+
+.learn-carousel-frame {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.learn-carousel-frame iframe {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: #f1f5f9;
+}
+
+.home-visual-lessons .learn-carousel-frame {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.learn-carousel-skeleton {
+  display: grid;
+  gap: 12px;
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.learn-carousel-skeleton span {
+  display: block;
+  height: 18px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--surface-2),
+    var(--surface),
+    var(--surface-2)
+  );
+  background-size: 200% 100%;
+  animation: learn-shimmer 1.2s linear infinite;
+}
+
+.learn-carousel-skeleton span:nth-child(2) {
+  width: 70%;
+}
+
+.learn-carousel-skeleton span:nth-child(3) {
+  width: 45%;
+}
+
+@keyframes learn-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.learn-carousel-error {
+  margin-top: var(--space-3);
+}
+
+.learn-float-toggles {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  z-index: 44;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.learn-float-toggles button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.learn-float-toggles button:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+}
+
+.learn-float-toggles button.is-on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.learn-topic-groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.learn-topic-group h3 {
+  margin: 0 0 var(--space-2);
+  font-size: 1rem;
+}
+
+.learn-topic-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-2);
+}
+
+.learn-topic-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.learn-topic-card:hover {
+  transform: translateY(-1px);
+  border-color: var(--border-strong);
+}
+
+.learn-topic-card span {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+@media (max-width: 640px) {
+  .learn-float-toggles {
+    left: 10px;
+    bottom: 10px;
+  }
+
+  .learn-float-toggles button {
+    padding: 8px 11px;
+    font-size: 0.76rem;
+  }
+}
+
 .category-card {
   padding: var(--space-5);
   border-radius: var(--radius);
@@ -6474,5 +6660,265 @@ body {
   .btn-primary:hover,
   .theme-swatch:hover {
     transform: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Concept scenes (class 9–12 visualization packs)
+   -------------------------------------------------------------------------- */
+
+.concept-scene {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.concept-canvas {
+  width: 100%;
+  height: auto;
+  max-height: 430px;
+  display: block;
+  overflow: visible;
+}
+
+.concept-inline-svg {
+  width: 100%;
+  height: auto;
+  max-height: 260px;
+}
+
+.concept-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+
+.concept-slider {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.concept-slider input[type="range"] {
+  width: 180px;
+  accent-color: var(--accent);
+}
+
+.concept-slider strong {
+  min-width: 3.4ch;
+  text-align: right;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.concept-toggle {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+}
+
+.concept-toggle button {
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  font: inherit;
+  cursor: pointer;
+}
+
+.concept-toggle button.active {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.concept-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.concept-rule {
+  text-transform: capitalize;
+  font-weight: 700;
+  color: var(--accent-strong);
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-soft);
+}
+
+.concept-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.concept-chip span {
+  color: var(--text-soft);
+}
+
+.concept-chip strong {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.concept-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.concept-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.concept-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.algebra-scene {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: var(--space-4);
+  width: 100%;
+  align-items: start;
+}
+
+.algebra-main {
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  padding: var(--space-3);
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.algebra-formula {
+  text-align: center;
+  font-size: 1.15rem;
+  padding: var(--space-2);
+}
+
+.algebra-formula .math-formula.block {
+  display: block;
+}
+
+.algebra-symbol {
+  display: grid;
+  place-items: center;
+  min-height: 90px;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--accent);
+  font-family: var(--font-math);
+}
+
+.algebra-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 340px;
+  overflow: auto;
+}
+
+.algebra-rail li {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  opacity: 0.55;
+}
+
+.algebra-rail li.done {
+  opacity: 0.8;
+}
+
+.algebra-rail li.active {
+  opacity: 1;
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.algebra-rail li p {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+.algebra-rail-index {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.algebra-rail li.active .algebra-rail-index {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.chart-note {
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-top: var(--space-2);
+}
+
+@media (max-width: 860px) {
+  .algebra-scene {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .concept-canvas {
+    max-height: 360px;
+  }
+
+  .concept-slider input[type="range"] {
+    width: 120px;
   }
 }

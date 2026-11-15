@@ -2,10 +2,34 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { pick, speak } from "./shared";
+import NumberLineConcept from "./scene/NumberLineConcept";
 
 const sameNumber = (a, b) => String(a) === String(b);
 
-export default function NumberLineRenderer({ step, lang, spec, sound = true }) {
+const CONCEPT_MODES = new Set([
+  "interval",
+  "interval-set",
+  "decimal-expansion",
+  "density",
+  "order",
+  "log-scale",
+  "volume-conversion",
+  "linear-inequality",
+  "sign-flip",
+  "modulus",
+  "triangle-inequality",
+  "completeness",
+]);
+
+export default function NumberLineRenderer(props) {
+  const mode = props.spec?.data?.mode;
+  if (CONCEPT_MODES.has(mode)) {
+    return <NumberLineConcept {...props} />;
+  }
+  return <PlayNumberLine {...props} />;
+}
+
+function PlayNumberLine({ step, lang, spec, sound = true }) {
   const data = { ...(spec?.data ?? {}), ...(step?.data ?? {}) };
   const stones = useMemo(
     () =>

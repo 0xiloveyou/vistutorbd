@@ -18,7 +18,7 @@ const MODE_KEY = "viztutor-companion-mode";
  * step, and whether the companion chat is open.
  */
 export function CompanionProvider({ children }) {
-  const [mode, setModeState] = useState("default");
+  const [mode, setModeState] = useState("companion");
   const [context, setContextState] = useState({});
   const [chatOpen, setChatOpen] = useState(false);
 
