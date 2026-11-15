@@ -1,6 +1,6 @@
 # Frontend progress
 
-_Last updated: Class 9–10 visual lab, class-aware home carousel, 29-lesson generic carousel with robot-first explanations, eight themes, particle-motion lesson, and forum loading skeletons._
+_Last updated: Next-plan game/visual/Q&A cycle on `/learn`, class-aware home carousel, 29-lesson generic carousel, eight themes and forum loading skeletons._
 
 ## Status
 
@@ -34,9 +34,18 @@ _Last updated: Class 9–10 visual lab, class-aware home carousel, 29-lesson gen
 | Forum | ✅ | Top New-post toggle, infinite post feed, skeleton cards while loading, 135-sign maths toolbar, live KaTeX preview, comments with maths, Ask AI |
 | Maths toolbar | ✅ | Shared `mathSymbols.js` + `MathSymbolBar`; used by forum composer, comments and AI chat |
 | Route/API docs | ✅ | `docs/routes.md` |
+| Next-plan activities | OK | 15 MongoDB carousels (5 games + 5 visuals + 5 Q&A) from the merged folder 1/2/3 bank; Bolt robot default, Play/Nursery robot-mandatory |
 | Backend docs | ✅ | `../backend/docs/api/*` |
 
 ## Latest update
+
+### Next-plan game + visual + Q&A cycle on `/learn`
+
+- `/learn` now surfaces 15 new carousels from the merged `public/next plan` content: **five games**, **five visual explanations** and **five Q&A sets**, one of each for Play & Nursery, Class 1–5, Class 6–8, Class 9–10 and Class 11–12.
+- The games are Count the Mangoes, Fraction Pizza Shop, Integer Elevator, Hoop Shot Parabolas and Slope Tracker. The visuals are Shape Detectives, Equivalent Fraction Wall, Pythagoras Squares, Parabola Family and Secant to Tangent. Each Q&A set has four bilingual questions, optional picture scenes and a worked explanation after the answer.
+- Bolt, the cute robot from the folder-1 game pattern, is the default explainer in every activity: speech bubble, voice, flying/pointing, happy/sad/thinking moods and a tip on tap. Play & Nursery hides the style switch so the robot cannot be turned off.
+- The documents are generated in the backend (`npm run content:next-plan`) and seeded as `LearnCarousel` rows: visuals use `EXPLANATION`, games and Q&A use `QUESTION`. `SecureCarouselFrame` embeds them through `srcDoc` with the existing sandbox and height reporting, so no new frontend component was needed.
+- Class selection drives the lists: each activity carries the level ids of its group, and the existing `/learn` preference rule shows the class-specific carousels alongside the original ones.
 
 ### Class 9–10 visual lab and class-aware home carousel
 
