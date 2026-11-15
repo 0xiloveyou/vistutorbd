@@ -6,9 +6,62 @@ import { getCategories, getTopics, getVisualizations } from "@/api";
 import { useClassSelection } from "@/providers/class.provider";
 import { useLocale } from "@/providers/locale.provider";
 import { useQuery } from "@tanstack/react-query";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
-function HomeCatalogStats() {
+function AnimatedCount({ value }) {
+  const elementRef = useRef(null);
+
+  useEffect(() => {
+    const element = elementRef.current;
+    if (!element) return undefined;
+
+    let frame = 0;
+    let observer;
+    let started = false;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const animate = () => {
+      if (started) return;
+      started = true;
+      if (reducedMotion) {
+        element.textContent = value.toLocaleString();
+        return;
+      }
+
+      const start = performance.now();
+      const duration = 1100;
+      const tick = (now) => {
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = 1 - (1 - progress) ** 4;
+        element.textContent = Math.round(value * eased).toLocaleString();
+        if (progress < 1) frame = requestAnimationFrame(tick);
+      };
+      frame = requestAnimationFrame(tick);
+    };
+
+    if ("IntersectionObserver" in window) {
+      observer = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) {
+          animate();
+          observer.disconnect();
+        }
+      }, { threshold: 0.25 });
+      observer.observe(element);
+    } else {
+      animate();
+    }
+
+    return () => {
+      observer?.disconnect();
+      cancelAnimationFrame(frame);
+    };
+  }, [value]);
+
+  return <strong ref={elementRef}>0</strong>;
+}
+
+function HomeCatalogStats({ onReady }) {
   const { bands } = useClassSelection();
   const visualizations = useQuery({
     queryKey: ["home-catalog-count", "visualizations"],
@@ -27,6 +80,8 @@ function HomeCatalogStats() {
   });
 
   const classCount = bands.reduce((total, band) => total + (band.levels?.length ?? 0), 0);
+  const countsLoaded =
+    visualizations.isFetched && topics.isFetched && categories.isFetched;
   const stats = [
     { label: "Visualizations", value: visualizations.data?.meta?.total },
     { label: "Topics", value: topics.data?.meta?.total },
@@ -34,13 +89,25 @@ function HomeCatalogStats() {
     { label: "Classes", value: classCount },
   ].filter((stat) => Number.isFinite(stat.value) && stat.value > 0);
 
+  useEffect(() => {
+    if (countsLoaded) onReady();
+  }, [countsLoaded, onReady]);
+
+  if (!countsLoaded) {
+    return (
+      <div className="home-catalog-stats home-catalog-stats-loading" aria-hidden="true">
+        {[0, 1, 2, 3].map((item) => <span key={item} />)}
+      </div>
+    );
+  }
+
   if (!stats.length) return null;
 
   return (
     <section className="home-catalog-stats" aria-label="Learning content">
       {stats.map((stat) => (
         <div className="home-stat" key={stat.label}>
-          <strong>{stat.value.toLocaleString()}</strong>
+          <AnimatedCount value={stat.value} />
           <span>{stat.label}</span>
         </div>
       ))}
@@ -50,31 +117,43 @@ function HomeCatalogStats() {
 
 export default function HomePage() {
   const { t } = useLocale();
+  const [visualReady, setVisualReady] = useState(false);
+  const [countsReady, setCountsReady] = useState(false);
+  const markVisualReady = useCallback(() => setVisualReady(true), []);
+  const markCountsReady = useCallback(() => setCountsReady(true), []);
 
   return (
     <>
-      <VisualLessons />
-      <HomeCatalogStats />
-      <section className="home-class-choice">
-        <span className="eyebrow">{t("home.chooseClass")}</span>
-        <ClassPicker showLink={false} redirectTo="/learn" />
-      </section>
-      <section className="hero">
-        <div className="hero-copy">
-          <span className="eyebrow">{t("home.kicker")}</span>
-          <h1>{t("home.title")}</h1>
-          <p className="lead">{t("home.subtitle")}</p>
+      <VisualLessons onReady={markVisualReady} />
+      {visualReady ? (
+        <>
+          <HomeCatalogStats onReady={markCountsReady} />
+          {countsReady ? (
+            <>
+              <section className="home-class-choice">
+                <span className="eyebrow">{t("home.chooseClass")}</span>
+                <ClassPicker showLink={false} redirectTo="/learn" />
+              </section>
+              <section className="hero">
+                <div className="hero-copy">
+                  <span className="eyebrow">{t("home.kicker")}</span>
+                  <h1>{t("home.title")}</h1>
+                  <p className="lead">{t("home.subtitle")}</p>
 
-          <div className="hero-actions">
-            <Link href="/learn" className="btn btn-primary">
-              {t("home.startLearning")} →
-            </Link>
-            <Link href="/bookmarks" className="btn btn-ghost">
-              {t("common.bookmarks")}
-            </Link>
-          </div>
-        </div>
-      </section>
+                  <div className="hero-actions">
+                    <Link href="/learn" className="btn btn-primary">
+                      {t("home.startLearning")} →
+                    </Link>
+                    <Link href="/bookmarks" className="btn btn-ghost">
+                      {t("common.bookmarks")}
+                    </Link>
+                  </div>
+                </div>
+              </section>
+            </>
+          ) : null}
+        </>
+      ) : null}
     </>
   );
 }

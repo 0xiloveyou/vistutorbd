@@ -56,7 +56,9 @@ export default function LearnPage() {
     const specific = list.filter((item) =>
       item.classLevelIds?.includes(level.id),
     );
-    return specific.length ? specific : list;
+    return specific.length
+      ? specific
+      : list.filter((item) => item.classLevelIds?.includes("all"));
   }, [carouselsQuery.data?.explanations, level?.id]);
   const questions = carouselsQuery.data?.questions ?? [];
   const categories = categoriesQuery.data ?? [];

@@ -14,7 +14,7 @@ const DEFAULT_HEIGHT = 900;
  * API at runtime. `srcDoc` keeps the markup out of the public folder, and the
  * sandbox gives the lesson scripts no access to the parent document.
  */
-export default function SecureCarouselFrame({ slug, title }) {
+export default function SecureCarouselFrame({ slug, title, onReady, loadingFallback }) {
   const frameRef = useRef(null);
   const [height, setHeight] = useState(DEFAULT_HEIGHT);
   const { t } = useLocale();
@@ -47,7 +47,14 @@ export default function SecureCarouselFrame({ slug, title }) {
     return () => window.removeEventListener("message", onMessage);
   }, []);
 
+  useEffect(() => {
+    if (query.isError || (!query.isLoading && !query.data?.html)) {
+      onReady?.();
+    }
+  }, [onReady, query.data?.html, query.isError, query.isLoading]);
+
   if (query.isLoading) {
+    if (loadingFallback) return loadingFallback;
     return (
       <div className="learn-carousel-skeleton" aria-hidden="true">
         <span />
@@ -76,6 +83,7 @@ export default function SecureCarouselFrame({ slug, title }) {
         loading="lazy"
         allow="autoplay; fullscreen"
         style={{ height }}
+        onLoad={onReady}
       />
     </div>
   );

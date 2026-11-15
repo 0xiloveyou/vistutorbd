@@ -2,9 +2,11 @@
 
 import { getLearnCarousels } from "@/api";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import HomeLoading from "./home-loading/HomeLoading";
 import SecureCarouselFrame from "./SecureCarouselFrame";
 
-export default function VisualLessons() {
+export default function VisualLessons({ onReady }) {
   const query = useQuery({
     queryKey: ["home-explanation-carousel"],
     queryFn: () => getLearnCarousels({ kind: "EXPLANATION" }),
@@ -13,14 +15,14 @@ export default function VisualLessons() {
 
   const carousel = query.data?.[0];
 
+  useEffect(() => {
+    if (query.isFetched && !carousel) onReady?.();
+  }, [carousel, onReady, query.isFetched]);
+
   if (query.isLoading) {
     return (
       <section className="home-visual-lessons" aria-label="Interactive visual lessons">
-        <div className="learn-carousel-skeleton" aria-hidden="true">
-          <span />
-          <span />
-          <span />
-        </div>
+        <HomeLoading />
       </section>
     );
   }
@@ -29,7 +31,12 @@ export default function VisualLessons() {
 
   return (
     <section className="home-visual-lessons" aria-label="Interactive visual lessons">
-      <SecureCarouselFrame slug={carousel.slug} title={carousel.title?.en} />
+      <SecureCarouselFrame
+        slug={carousel.slug}
+        title={carousel.title?.en}
+        onReady={onReady}
+        loadingFallback={<HomeLoading />}
+      />
     </section>
   );
 }
