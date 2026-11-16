@@ -1,6 +1,6 @@
 "use client";
 
-import { getLearnCarousels } from "@/api";
+import { getLearnCarousel, getLearnCarousels } from "@/api";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import HomeLoading from "./home-loading/HomeLoading";
@@ -9,15 +9,24 @@ import SecureCarouselFrame from "./SecureCarouselFrame";
 export default function VisualLessons({ onReady }) {
   const query = useQuery({
     queryKey: ["home-explanation-carousel"],
-    queryFn: () => getLearnCarousels({ kind: "EXPLANATION" }),
+    queryFn: async () => {
+      const carousels = await getLearnCarousels({ kind: "EXPLANATION" });
+      const carousel = carousels?.[0];
+      if (!carousel) return null;
+
+      const detail = await getLearnCarousel(carousel.slug);
+      return { carousel, detail };
+    },
     staleTime: 5 * 60 * 1000,
   });
 
-  const carousel = query.data?.[0];
+  const carousel = query.data?.carousel;
 
   useEffect(() => {
-    if (query.isFetched && !carousel) onReady?.();
-  }, [carousel, onReady, query.isFetched]);
+    if (query.isFetched && (!carousel || !query.data?.detail?.html)) {
+      onReady?.();
+    }
+  }, [carousel, onReady, query.data?.detail?.html, query.isFetched]);
 
   if (query.isLoading) {
     return (
@@ -34,8 +43,8 @@ export default function VisualLessons({ onReady }) {
       <SecureCarouselFrame
         slug={carousel.slug}
         title={carousel.title?.en}
+        carouselData={query.data.detail}
         onReady={onReady}
-        loadingFallback={<HomeLoading />}
       />
     </section>
   );
