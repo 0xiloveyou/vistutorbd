@@ -136,6 +136,27 @@ export const dictionary = {
       "Open any topic for its lesson blocks and visualization.",
     "learn.carouselUnavailable":
       "This carousel could not be loaded. Check the connection and try again.",
+    "learn.currentChapter": "Current chapter",
+    "learn.chaptersMenu": "Chapters",
+    "learn.openChapters": "Open chapters",
+    "learn.closeChapters": "Close chapters",
+    "learn.pickChapterTitle": "Pick a chapter",
+    "learn.pickChapterHint":
+      "Open the chapter menu and choose where to begin. The menu stays as one small floating button while you watch.",
+    "learn.chapterMenuHint":
+      "Choose a chapter. The menu folds into a single small button while the lesson plays.",
+    "learn.searchChapters": "Search chapters",
+    "learn.noChapters": "No chapters are available for this class yet.",
+    "learn.noChapterMatch": "No chapter matches your search.",
+    "learn.visualizationPending":
+      "This chapter's visualization is being prepared.",
+    "learn.visualizationPendingHint":
+      "It will appear here automatically once the approved library content and Art Rules are published.",
+    "learn.questionsShort": "{count} questions",
+    "learn.chapterCount": "{count} chapters",
+    "learn.vizReady": "Ready",
+    "learn.vizPending": "Pending",
+    "learn.lockedClass": "Coming soon",
     "class.categories": "Categories",
     "class.chapters": "Chapters",
     "class.topics": "Topics",
@@ -469,6 +490,28 @@ export const dictionary = {
     "learn.pickPrompt":
       "এখনো কোনো শ্রেণি বেছে নেননি — শুরু করতে নিচ থেকে একটি বেছে নিন।",
     "learn.openClass": "পাঠ খুলুন →",
+    "learn.currentClass": "বর্তমান শ্রেণি",
+    "learn.currentChapter": "বর্তমান অধ্যায়",
+    "learn.chaptersMenu": "অধ্যায়সমূহ",
+    "learn.openChapters": "অধ্যায় তালিকা খুলুন",
+    "learn.closeChapters": "অধ্যায় তালিকা বন্ধ করুন",
+    "learn.pickChapterTitle": "একটি অধ্যায় বেছে নিন",
+    "learn.pickChapterHint":
+      "অধ্যায় তালিকা খুলে শুরু করার জায়গা বেছে নিন। পাঠ চলাকালে তালিকাটি একটি ছোট ভাসমান বোতামে ভাঁজ হয়ে থাকবে।",
+    "learn.chapterMenuHint":
+      "একটি অধ্যায় বেছে নিন। পাঠ চলাকালে তালিকাটি একটি ছোট বোতামে ভাঁজ হয়ে থাকবে।",
+    "learn.searchChapters": "অধ্যায় খুঁজুন",
+    "learn.noChapters": "এই শ্রেণির জন্য এখনো কোনো অধ্যায় নেই।",
+    "learn.noChapterMatch": "আপনার খোঁজের সাথে কোনো অধ্যায় মেলেনি।",
+    "learn.visualizationPending":
+      "এই অধ্যায়ের ভিজ্যুয়ালাইজেশন প্রস্তুত করা হচ্ছে।",
+    "learn.visualizationPendingHint":
+      "অনুমোদিত লাইব্রেরি কনটেন্ট ও আর্ট রুলস প্রকাশ হলে এটি এখানে স্বয়ংক্রিয়ভাবে দেখা যাবে।",
+    "learn.questionsShort": "{count}টি প্রশ্ন",
+    "learn.chapterCount": "{count}টি অধ্যায়",
+    "learn.vizReady": "প্রস্তুত",
+    "learn.vizPending": "অপেক্ষমাণ",
+    "learn.lockedClass": "শীঘ্রই আসছে",
     "class.categories": "বিভাগসমূহ",
     "class.chapters": "অধ্যায়সমূহ",
     "class.topics": "টপিকসমূহ",

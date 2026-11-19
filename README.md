@@ -2,18 +2,15 @@
 
 Next.js 15 + React 19 learner client for **VizTutorBD**, a visualization-first math platform for Play, Nursery and Class 1–12 in English and Bangla. It talks to the Express/MongoDB backend in `../vistutorbd-backend` at `/api/v1`.
 
-> **Skeleton phase.** All routes, providers, shells and the player/quiz/chat UI are wired. Real chapters, topics and visualization renderers come next. See [`progress.md`](progress.md).
+> **Content-library phase.** Routes, providers and the chat/practice UI are in place. `/learn` now reads the new library API; chapter visualizations appear only after approved HTML is published in the backend's `content-library/generated-visualizations/`. See [`progress.md`](progress.md).
 
 ## Latest changes
 
-- Next-plan activities on `/learn`: 15 new MongoDB carousels built from the merged folder 1/2/3 content — one **game**, one **visual explanation** and one **Q&A set** for each of Play & Nursery, Class 1–5, 6–8, 9–10 and 11–12.
-- Every activity uses Bolt, the cute robot from the folder-1 game pattern, as the default explainer. Play & Nursery hides the style switch, so the robot is always on; other groups can switch to line art or text.
-- Games: count the mangoes, fraction pizza, integer elevator, parabola hoop shots, secant-slope tracker. Visuals: shape detectives, equivalent fraction wall, Pythagoras squares, parabola family, secant→tangent. Q&A: four bilingual questions per set with picture scenes and an explanation after each answer.
-- The carousels are seeded by the backend (`next-game-*`, `next-visual-*`, `next-question-*`) and embedded by `SecureCarouselFrame`; `/learn` shows the game, visual and Q&A for the selected class from the same `EXPLANATION` / `QUESTION` lists.
-- Home visual lessons: a class-aware carousel served from MongoDB through `/api/v1/learn/*` and embedded by `src/components/VisualLessons.jsx`, with play/pause, scrub, speed, keyboard/swipe navigation and mobile dots.
-- Class 9–10 visual lab: 14 lessons (11 robot explainers + 3 explore/line-art lessons) with a featured hero and live controls for logarithms, circle angles, elevation, similarity, series, mensuration and more.
-- Robot-first lessons: every visual with a robot mode is placed before the rest, then sorted by rank. The home carousel requests the selected class and prefers its class-specific carousel over the generic one.
-- New Class 11–12 visuals: **Chain rule**, **Motion of a particle in a plane**, and **Fundamental Theorem: area and slope are inverses**, alongside first principles, the power rule, antiderivatives and Riemann sums.
+- `/learn` rebuilt around the new library: pick a class, open the floating hamburger chapter menu, choose a chapter, and the menu folds into one small button while the chapter visualization plays.
+- `src/api/library.api.js` exposes `getLibraryClasses`, `getLibraryChapters`, `getLibraryChapter` and `getLibraryVisualization`.
+- Chapter HTML is loaded from `GET /library/chapters/:chapterId/visualization` and embedded through `SecureCarouselFrame` (sandboxed iframe + height messaging). If no approved HTML exists yet, the page shows a "visualization being prepared" panel instead of an error.
+- Old class/category/chapter carousels are no longer requested by `/learn`. The backend archived them under `legacy-content/` and removed them from MongoDB.
+- Next-plan activities on the old `/learn` flow are retired with the legacy carousels; the new pipeline is chapter-by-chapter and follows the backend's mandatory `art-rules/RULES.md`.
 - Themes: eight palettes (indigo, emerald, sunset, rose, ocean, violet, amber, contrast) with light/dark modes and a swatch gallery in Settings.
 - Forum: three shimmer skeleton cards while the first page loads and one while loading more; the count shows “Loading…” instead of `0`, and no dummy post remains in the feed.
 - Forum: the composer is hidden behind a top **New post** button, the feed uses infinite scroll to load more posts at the bottom, and empty forums receive ten seeded starter posts from the backend.
@@ -42,7 +39,7 @@ NEXT_PUBLIC_GOOGLE_CLIENT_ID=
 - `API_INTERNAL_URL` is optional and only used by server components (`src/lib/serverApi.js`). It falls back to the public URL.
 - `NEXT_PUBLIC_GOOGLE_CLIENT_ID` is optional. When set, the login page renders Google Sign-In; the backend must use the same client ID.
 
-Start the backend first (`cd ../backend && npm run dev`).
+Start the backend first (`cd ../vistutorbd-backend && npm run dev`).
 
 | Script | Purpose |
 | --- | --- |
@@ -55,7 +52,7 @@ Start the backend first (`cd ../backend && npm run dev`).
 | Route | Access | Notes |
 | --- | --- | --- |
 | `/` | public | Class-aware visual-lesson carousel, class picker, features; companion chat opens from the floating dock |
-| `/learn` | public | Class picker, explanation and question carousels for the selected class |
+| `/learn` | public | Class picker, floating hamburger chapter menu, chapter visualization player |
 | `/search` | public | Topic search with class filter and pagination (`?q=&classLevelId=&page=`) |
 | `/forum` | public | Top New-post button, infinite post feed, maths toolbar + live preview, comments, Ask AI |
 | `/about` | public | Mission, what the platform offers, audience |
@@ -81,15 +78,13 @@ Start the backend first (`cd ../backend && npm run dev`).
 
 The full route → endpoint map is in [`docs/routes.md`](docs/routes.md).
 
-## Visual lessons
+## Learn page and library
 
-- Carousel HTML lives in `../vistutorbd-backend/src/app/content/carousels/` and is seeded into MongoDB by `seed-learn-carousels.ts`; the client never serves it as a static file.
-- `VisualLessons.jsx` requests explanations for the selected class, prefers a class-specific carousel over the generic `explanation-all` document, and embeds it through `SecureCarouselFrame`, which reports the iframe height back to the parent.
-- The generic carousel has 29 lessons from Play to Class 12. The Class 9–10 carousel adds 14 lessons: 11 robot-led explanations with line-art modes and 3 explore/line-art lessons.
-- Each lesson supports play/pause, restart, previous/next, speed, progress scrubbing, keyboard arrows and swipe; mobile uses a one-row dot navigator.
-- `/learn` applies the same priority: a class-specific explanation carousel replaces the generic one when it exists.
-- The next-plan cycle adds 15 documents to the same pipeline. Each class receives a game and a Q&A set in the `QUESTION` list and a visual explanation in the `EXPLANATION` list; the Play & Nursery versions carry `classLevelIds: ["play", "nursery"]`, and the other groups use their band's level ids. The documents are generated by the backend with `npm run content:next-plan` and never served as static files.
-- All 15 activities share one runtime and load Bolt from `content/next-plan/runtime/robot.svg`; the generated payload is `window.__NEXT_PLAN__`. Bangla/English switching, "Show me how", hints, "I didn't understand", sound and restart work the same way in every activity.
+- `/learn` reads `GET /api/v1/library/classes`, `/library/classes/:classId/chapters` and `/library/chapters/:chapterId`.
+- The class picker appears first. After a class is chosen, a floating hamburger button opens the chapter drawer; choosing a chapter closes the drawer and leaves the button as the only fixed control.
+- The player requests `/library/chapters/:chapterId/visualization`. Approved HTML is rendered through `SecureCarouselFrame` with `srcDoc`, the existing sandbox and iframe height reporting. The backend injects autoplay/loop support during sync.
+- If a chapter has no published HTML, the page shows the localized "visualization being prepared" panel. Chapters without a visualization are still selectable and show their pending state.
+- `VisualLessons.jsx` on the homepage still uses the old `/learn/carousels` API; that data is now empty because the legacy carousels were archived. The homepage carousel will be migrated to the library pipeline in a later pass.
 
 ## Structure
 

@@ -1168,6 +1168,414 @@ code,
   font-size: 0.82rem;
 }
 
+/* Learn page: class chapter menu, floating hamburger and chapter player */
+.learn-class-heading {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.learn-chapter-total,
+.learn-chapter-meta span {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.learn-chapter-stage {
+  margin: var(--space-4) 0 var(--space-6);
+  min-height: 340px;
+  scroll-margin-top: 96px;
+}
+
+.learn-chapter-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 340px;
+  padding: clamp(22px, 4vw, 46px);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  background:
+    radial-gradient(circle at 50% 0%, var(--accent-soft), transparent 60%),
+    var(--surface);
+  text-align: center;
+}
+
+.learn-chapter-empty h2 {
+  margin: var(--space-2) 0 0;
+}
+
+.learn-chapter-empty p {
+  max-width: 46ch;
+  margin: 0 0 var(--space-2);
+}
+
+.learn-chapter-empty-icon {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 42px;
+  padding: 11px 9px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.learn-chapter-empty-icon span {
+  display: block;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.learn-chapter-empty-icon span:nth-child(2) {
+  width: 72%;
+}
+
+.learn-chapter-empty-icon span:nth-child(3) {
+  width: 46%;
+}
+
+.learn-chapter-titlebar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.learn-chapter-titlebar h2 {
+  margin: 2px 0 0;
+}
+
+.learn-chapter-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.learn-chapter-pending {
+  padding: clamp(22px, 4vw, 40px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.learn-chapter-pending h3 {
+  margin: 0 0 var(--space-2);
+}
+
+.learn-chapter-pending p {
+  max-width: 62ch;
+  margin: 0 0 var(--space-2);
+}
+
+.learn-chapter-menu {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  z-index: 46;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.learn-chapter-menu > * {
+  pointer-events: auto;
+}
+
+.learn-chapter-panel {
+  display: flex;
+  flex-direction: column;
+  width: min(400px, calc(100vw - 40px));
+  max-height: min(72vh, 640px);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+  animation: learn-menu-pop 0.18s ease-out;
+}
+
+@keyframes learn-menu-pop {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.learn-chapter-panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.learn-chapter-panel-head strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 1.02rem;
+}
+
+.learn-chapter-close {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.learn-chapter-panel-hint {
+  margin: var(--space-2) 0 var(--space-3);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.learn-chapter-search {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.86rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.learn-chapter-search:focus-visible {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.learn-chapter-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+  margin-top: var(--space-3);
+  padding-right: 4px;
+  overflow-y: auto;
+}
+
+.learn-chapter-list-note {
+  margin: 0;
+  padding: var(--space-3) 0;
+  font-size: 0.84rem;
+}
+
+.learn-chapter-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  text-align: left;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    transform 0.18s ease;
+}
+
+.learn-chapter-item:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-2);
+  transform: translateX(2px);
+}
+
+.learn-chapter-item.is-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.learn-chapter-no {
+  min-width: 54px;
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.learn-chapter-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.learn-chapter-info strong {
+  overflow: hidden;
+  font-size: 0.86rem;
+  font-weight: 700;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.learn-chapter-info small {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.learn-chapter-badge {
+  padding: 2px 7px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.learn-chapter-badge.is-ready {
+  border-color: transparent;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.learn-chapter-fab {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.learn-chapter-fab:hover {
+  transform: translateY(-2px);
+}
+
+.learn-chapter-fab:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.learn-hamburger {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 22px;
+}
+
+.learn-hamburger span {
+  display: block;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.learn-chapter-fab.is-open .learn-hamburger span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.learn-chapter-fab.is-open .learn-hamburger span:nth-child(2) {
+  opacity: 0;
+}
+
+.learn-chapter-fab.is-open .learn-hamburger span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+.learn-fab-current {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  min-width: 24px;
+  padding: 2px 6px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.6rem;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.learn-class-card.is-locked {
+  opacity: 0.62;
+  cursor: not-allowed;
+}
+
+.learn-class-card.is-locked:hover {
+  border-color: var(--border);
+  background: var(--surface);
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  .learn-chapter-menu {
+    left: 12px;
+    bottom: 12px;
+  }
+
+  .learn-chapter-panel {
+    width: calc(100vw - 24px);
+    max-height: 64vh;
+  }
+
+  .learn-chapter-fab {
+    width: 50px;
+    height: 50px;
+  }
+
+  .learn-chapter-titlebar {
+    align-items: flex-start;
+  }
+
+  .learn-chapter-stage {
+    min-height: 280px;
+  }
+
+  .learn-chapter-empty {
+    min-height: 280px;
+  }
+}
+
 @media (max-width: 640px) {
   .learn-float-toggles {
     left: 10px;

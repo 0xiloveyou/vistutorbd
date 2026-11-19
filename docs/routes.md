@@ -9,6 +9,7 @@ The root layout fetches `GET /taxonomy/bands` on the server and passes the resul
 | Route | File | Rendering | APIs |
 | --- | --- | --- | --- |
 | `/` | `app/page.jsx` | client | Header `GET /auth/me`; chat `POST /chat/messages`, `POST /chat/image-problem` |
+| `/learn` | `app/learn/page.jsx` | client | `GET /library/classes`, `GET /library/classes/:classId/chapters`, `GET /library/chapters/:chapterId`, `GET /library/chapters/:chapterId/visualization` |
 | `/search` | `app/search/page.jsx` → `SearchView` | server + client island | `GET /taxonomy/bands`, `GET /topics?q=&classLevelId=&page=&limit=` |
 | `/about` | `app/about/page.jsx` | client | none (bilingual static content) |
 | `/contact` | `app/contact/page.jsx` | client | `POST /contact` |
@@ -21,7 +22,9 @@ The root layout fetches `GET /taxonomy/bands` on the server and passes the resul
 
 Notes:
 
-- `/class/[level]` resolves categories to chapters with `Promise.all`; if the backend is down the page shows the empty state instead of crashing (`serverGet` returns `null`).
+- `/learn` reads the new library API only. A chapter without published HTML returns `404` from the visualization endpoint; the page shows the pending panel rather than retrying or rendering an error.
+- `/class/[level]` resolves categories to chapters with `Promise.all`; if the backend is down the page shows the empty state instead of crashing (`serverGet` returns `null`). Its legacy taxonomy content was purged, so these routes currently show empty states until that flow is migrated to the library.
+- The homepage `VisualLessons` carousel still calls `/learn/carousels`; that legacy collection is empty after the archive.
 - The chapter route reads `category` and `chapter` as **slugs** and resolves them against the category/chapter lists.
 - `POST /quiz/generate` is guest-accessible. Guest answers are checked locally in `src/lib/mathCheck.js`; signed-in attempts are re-checked and stored by the backend.
 

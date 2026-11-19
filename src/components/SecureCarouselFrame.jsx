@@ -14,18 +14,28 @@ const DEFAULT_HEIGHT = 900;
  * API at runtime. `srcDoc` keeps the markup out of the public folder, and the
  * sandbox gives the lesson scripts no access to the parent document.
  */
-export default function SecureCarouselFrame({ slug, title, onReady, carouselData }) {
+export default function SecureCarouselFrame({
+  slug,
+  title,
+  onReady,
+  carouselData,
+  html: directHtml,
+}) {
   const frameRef = useRef(null);
   const [height, setHeight] = useState(DEFAULT_HEIGHT);
   const { t } = useLocale();
+  const hasDirectHtml = typeof directHtml === "string" && directHtml.length > 0;
 
   const query = useQuery({
     queryKey: ["learn-carousel", slug],
     queryFn: () => getLearnCarousel(slug),
-    enabled: Boolean(slug),
+    enabled: Boolean(slug) && !hasDirectHtml,
     staleTime: 5 * 60 * 1000,
     initialData: carouselData,
   });
+
+  const resolvedHtml = hasDirectHtml ? directHtml : query.data?.html;
+  const resolvedTitle = title || query.data?.title?.en;
 
   useEffect(() => {
     const onMessage = (event) => {
@@ -49,12 +59,12 @@ export default function SecureCarouselFrame({ slug, title, onReady, carouselData
   }, []);
 
   useEffect(() => {
-    if (query.isError || (!query.isLoading && !query.data?.html)) {
+    if (query.isError || (!query.isLoading && !resolvedHtml)) {
       onReady?.();
     }
-  }, [onReady, query.data?.html, query.isError, query.isLoading]);
+  }, [onReady, resolvedHtml, query.isError, query.isLoading]);
 
-  if (query.isLoading) {
+  if (query.isLoading && !hasDirectHtml) {
     return (
       <div className="learn-carousel-skeleton" aria-hidden="true">
         <span />
@@ -64,7 +74,7 @@ export default function SecureCarouselFrame({ slug, title, onReady, carouselData
     );
   }
 
-  if (query.isError || !query.data?.html) {
+  if (query.isError || !resolvedHtml) {
     return (
       <div className="empty-panel learn-carousel-error">
         <p>{t("learn.carouselUnavailable")}</p>
@@ -76,8 +86,8 @@ export default function SecureCarouselFrame({ slug, title, onReady, carouselData
     <div className="learn-carousel-frame">
       <iframe
         ref={frameRef}
-        title={title || query.data.title?.en || "Interactive math carousel"}
-        srcDoc={query.data.html}
+        title={resolvedTitle || "Interactive math carousel"}
+        srcDoc={resolvedHtml}
         sandbox="allow-scripts"
         referrerPolicy="no-referrer"
         loading={onReady ? "eager" : "lazy"}

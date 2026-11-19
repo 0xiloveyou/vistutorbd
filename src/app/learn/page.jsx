@@ -1,96 +1,168 @@
 "use client";
 
-import { getCategories, getLearnCarousels, getTopics } from "@/api";
+import {
+  getLibraryChapter,
+  getLibraryChapters,
+  getLibraryClasses,
+  getLibraryVisualization,
+} from "@/api";
 import ClassPicker from "@/components/ClassPicker";
 import SecureCarouselFrame from "@/components/SecureCarouselFrame";
 import { localized } from "@/lib/localized";
 import { useClassSelection } from "@/providers/class.provider";
 import { useLocale } from "@/providers/locale.provider";
 import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
-async function fetchAllTopics(levelId) {
-  const first = await getTopics({ classLevelId: levelId, page: 1, limit: 50 });
-  const topics = [...(first.topics ?? [])];
-  const totalPages = first.meta?.totalPages ?? 1;
-
-  for (let page = 2; page <= totalPages; page += 1) {
-    const next = await getTopics({ classLevelId: levelId, page, limit: 50 });
-    topics.push(...(next.topics ?? []));
-  }
-
-  return topics;
-}
+const chapterLabel = (chapter) =>
+  chapter.paper
+    ? `${String(chapter.chapterNo).padStart(2, "0")} · ${chapter.paper.toUpperCase()}`
+    : String(chapter.chapterNo).padStart(2, "0");
 
 export default function LearnPage() {
   const { bands, level, ready, select } = useClassSelection();
   const { locale, t } = useLocale();
-  const carouselsQuery = useQuery({
-    queryKey: ["learn-carousels", level?.id ?? null],
-    queryFn: async () => {
-      const [explanations, questions] = await Promise.all([
-        getLearnCarousels({ classLevelId: level.id, kind: "EXPLANATION" }),
-        getLearnCarousels({ classLevelId: level.id, kind: "QUESTION" }),
-      ]);
-      return { explanations, questions };
-    },
-    enabled: Boolean(level?.id),
+  const [menuOpen, setMenuOpen] = useState(true);
+  const [chapterId, setChapterId] = useState(null);
+  const [filter, setFilter] = useState("");
+  const stageRef = useRef(null);
+
+  const classesQuery = useQuery({
+    queryKey: ["library-classes"],
+    queryFn: getLibraryClasses,
+    enabled: ready,
+    staleTime: 5 * 60 * 1000,
   });
 
-  const categoriesQuery = useQuery({
-    queryKey: ["learn-categories", level?.id ?? null],
-    queryFn: () => getCategories({ classLevelId: level.id }),
+  const chaptersQuery = useQuery({
+    queryKey: ["library-chapters", level?.id ?? null],
+    queryFn: () => getLibraryChapters(level.id),
     enabled: Boolean(level?.id),
+    staleTime: 5 * 60 * 1000,
   });
 
-  const topicsQuery = useQuery({
-    queryKey: ["learn-topics", level?.id ?? null],
-    queryFn: () => fetchAllTopics(level.id),
-    enabled: Boolean(level?.id),
+  const chapterQuery = useQuery({
+    queryKey: ["library-chapter", chapterId],
+    queryFn: () => getLibraryChapter(chapterId),
+    enabled: Boolean(chapterId),
+    staleTime: 5 * 60 * 1000,
   });
 
-  const explanations = useMemo(() => {
-    const list = carouselsQuery.data?.explanations ?? [];
-    if (!level?.id) return list;
-    const specific = list.filter((item) =>
-      item.classLevelIds?.includes(level.id),
+  const visualizationQuery = useQuery({
+    queryKey: ["library-visualization", chapterId],
+    queryFn: () => getLibraryVisualization(chapterId),
+    enabled: Boolean(chapterQuery.data?.visualization?.slug),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const classMeta = useMemo(
+    () => new Map((classesQuery.data ?? []).map((item) => [item.id, item])),
+    [classesQuery.data],
+  );
+
+  const chapters = chaptersQuery.data ?? [];
+  const current = useMemo(
+    () => chapters.find((chapter) => chapter.chapterId === chapterId) ?? null,
+    [chapters, chapterId],
+  );
+
+  useEffect(() => {
+    setChapterId(null);
+    setFilter("");
+    setMenuOpen(true);
+  }, [level?.id]);
+
+  const visibleChapters = useMemo(() => {
+    const term = filter.trim().toLowerCase();
+    if (!term) return chapters;
+    return chapters.filter((chapter) => {
+      const haystack = [
+        chapter.titleEn,
+        chapter.titleBn,
+        chapter.chapterId,
+        chapter.paper,
+        String(chapter.chapterNo),
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(term);
+    });
+  }, [chapters, filter]);
+
+  const chooseChapter = (nextId) => {
+    setChapterId(nextId);
+    setMenuOpen(false);
+    requestAnimationFrame(() => {
+      stageRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  };
+
+  const currentTitle = current
+    ? locale === "bn" && current.titleBn
+      ? current.titleBn
+      : current.titleEn
+    : "";
+
+  if (!ready) {
+    return (
+      <>
+        <header className="page-head">
+          <span className="eyebrow">{t("learn.kicker")}</span>
+          <h1>{t("learn.title")}</h1>
+        </header>
+        <p className="muted learn-status">{t("common.loading")}</p>
+      </>
     );
-    return specific.length
-      ? specific
-      : list.filter((item) => item.classLevelIds?.includes("all"));
-  }, [carouselsQuery.data?.explanations, level?.id]);
-  const questions = carouselsQuery.data?.questions ?? [];
-  const categories = categoriesQuery.data ?? [];
-  const topics = topicsQuery.data ?? [];
+  }
 
-  const topicGroups = useMemo(() => {
-    if (!topics.length) return [];
+  if (!level) {
+    return (
+      <>
+        <header className="page-head">
+          <span className="eyebrow">{t("learn.kicker")}</span>
+          <h1>{t("learn.title")}</h1>
+          <p className="muted">{t("learn.pickPrompt")}</p>
+        </header>
 
-    const byCategory = new Map();
-    for (const topic of topics) {
-      const key = topic.categoryId || "other";
-      if (!byCategory.has(key)) byCategory.set(key, []);
-      byCategory.get(key).push(topic);
-    }
-
-    const groups = [];
-    for (const category of categories) {
-      const list = byCategory.get(category.id);
-      if (list?.length) {
-        groups.push({ id: category.id, title: category.title, topics: list });
-      }
-    }
-
-    const known = new Set(categories.map((category) => category.id));
-    for (const [id, list] of byCategory.entries()) {
-      if (!known.has(id) && list.length) {
-        groups.push({ id, title: null, topics: list });
-      }
-    }
-
-    return groups;
-  }, [categories, topics]);
+        <section className="learn-bands" aria-label={t("learn.allClasses")}>
+          {bands.map((band) => (
+            <div key={band.id} className="learn-band">
+              <h2>{localized(band.name, locale)}</h2>
+              <div className="learn-class-grid">
+                {(band.levels ?? []).map((item) => {
+                  const meta = classMeta.get(item.id);
+                  const locked = Boolean(meta?.locked);
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className={`learn-class-card ${locked ? "is-locked" : ""}`}
+                      onClick={() => {
+                        if (locked) return;
+                        select(band.id, item.id);
+                        setMenuOpen(true);
+                      }}
+                      disabled={locked}
+                    >
+                      <strong>{localized(item.name, locale)}</strong>
+                      <small>
+                        {locked
+                          ? t("learn.lockedClass")
+                          : t("learn.chapterCount", {
+                              count: meta?.chapterCount ?? 0,
+                            })}
+                      </small>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </section>
+      </>
+    );
+  }
 
   return (
     <>
@@ -102,91 +174,189 @@ export default function LearnPage() {
         </div>
       </header>
 
-      {!ready ? (
-        <p className="muted learn-status">{t("common.loading")}</p>
-      ) : !level ? (
-        <section className="learn-bands" aria-label={t("learn.allClasses")}>
-          <p className="muted">{t("learn.pickPrompt")}</p>
-          {bands.map((band) => (
-            <div key={band.id} className="learn-band">
-              <h2>{localized(band.name, locale)}</h2>
-              <div className="learn-class-grid">
-                {(band.levels ?? []).map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    className="learn-class-card"
-                    onClick={() => select(band.id, item.id)}
-                  >
-                    <strong>{localized(item.name, locale)}</strong>
-                    <small>{t("learn.openClass")}</small>
-                  </button>
-                ))}
+      <div className="learn-class-heading">
+        <span className="eyebrow">{t("learn.currentClass")}</span>
+        <h2>{localized(level.name, locale)}</h2>
+        <span className="learn-chapter-total">
+          {t("learn.chapterCount", { count: chapters.length })}
+        </span>
+      </div>
+
+      <section className="learn-chapter-stage" ref={stageRef}>
+        {!chapterId ? (
+          <div className="learn-chapter-empty">
+            <span className="learn-chapter-empty-icon" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+            </span>
+            <h2>{t("learn.pickChapterTitle")}</h2>
+            <p className="muted">{t("learn.pickChapterHint")}</p>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => setMenuOpen(true)}
+            >
+              {t("learn.openChapters")}
+            </button>
+          </div>
+        ) : chapterQuery.isLoading ? (
+          <div className="learn-carousel-skeleton" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </div>
+        ) : chapterQuery.isError ? (
+          <div className="empty-panel learn-carousel-error">
+            <p>{t("learn.carouselUnavailable")}</p>
+          </div>
+        ) : (
+          <>
+            <div className="learn-chapter-titlebar">
+              <div>
+                <span className="eyebrow">{t("learn.currentChapter")}</span>
+                <h2>{currentTitle}</h2>
+              </div>
+              <div className="learn-chapter-meta">
+                <span>{chapterLabel(current)}</span>
+                <span>
+                  {t("learn.questionsShort", {
+                    count: current?.questionCount ?? 0,
+                  })}
+                </span>
               </div>
             </div>
-          ))}
-        </section>
-      ) : (
-        <>
-          <div className="learn-class-heading">
-            <span className="eyebrow">{t("learn.currentClass")}</span>
-            <h2>{localized(level.name, locale)}</h2>
+
+            {visualizationQuery.isLoading ? (
+              <div className="learn-carousel-skeleton" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+              </div>
+            ) : visualizationQuery.data?.html ? (
+              <SecureCarouselFrame
+                html={visualizationQuery.data.html}
+                title={currentTitle}
+              />
+            ) : (
+              <div className="learn-chapter-pending">
+                <h3>{t("learn.visualizationPending")}</h3>
+                <p className="muted">{t("learn.visualizationPendingHint")}</p>
+              </div>
+            )}
+          </>
+        )}
+      </section>
+
+      <div className={`learn-chapter-menu ${menuOpen ? "is-open" : ""}`}>
+        {menuOpen ? (
+          <div
+            className="learn-chapter-panel"
+            role="dialog"
+            aria-label={t("learn.chaptersMenu")}
+          >
+            <div className="learn-chapter-panel-head">
+              <div>
+                <span className="eyebrow">{t("learn.chaptersMenu")}</span>
+                <strong>{localized(level.name, locale)}</strong>
+              </div>
+              <button
+                type="button"
+                className="learn-chapter-close"
+                onClick={() => setMenuOpen(false)}
+                aria-label={t("learn.closeChapters")}
+              >
+                ×
+              </button>
+            </div>
+
+            <p className="learn-chapter-panel-hint">
+              {t("learn.chapterMenuHint")}
+            </p>
+
+            <input
+              className="learn-chapter-search"
+              type="search"
+              value={filter}
+              onChange={(event) => setFilter(event.target.value)}
+              placeholder={t("learn.searchChapters")}
+              aria-label={t("learn.searchChapters")}
+            />
+
+            <div className="learn-chapter-list">
+              {chaptersQuery.isLoading ? (
+                <p className="muted learn-chapter-list-note">
+                  {t("common.loading")}
+                </p>
+              ) : visibleChapters.length === 0 ? (
+                <p className="muted learn-chapter-list-note">
+                  {chapters.length
+                    ? t("learn.noChapterMatch")
+                    : t("learn.noChapters")}
+                </p>
+              ) : (
+                visibleChapters.map((chapter) => (
+                  <button
+                    key={chapter.chapterId}
+                    type="button"
+                    className={`learn-chapter-item ${
+                      chapter.chapterId === chapterId ? "is-active" : ""
+                    }`}
+                    onClick={() => chooseChapter(chapter.chapterId)}
+                  >
+                    <span className="learn-chapter-no">
+                      {chapterLabel(chapter)}
+                    </span>
+                    <span className="learn-chapter-info">
+                      <strong>
+                        {locale === "bn" && chapter.titleBn
+                          ? chapter.titleBn
+                          : chapter.titleEn}
+                      </strong>
+                      <small>
+                        {t("learn.questionsShort", {
+                          count: chapter.questionCount ?? 0,
+                        })}
+                      </small>
+                    </span>
+                    <span
+                      className={`learn-chapter-badge ${
+                        chapter.visualizationSlug ? "is-ready" : ""
+                      }`}
+                    >
+                      {chapter.visualizationSlug
+                        ? t("learn.vizReady")
+                        : t("learn.vizPending")}
+                    </span>
+                  </button>
+                ))
+              )}
+            </div>
           </div>
+        ) : null}
 
-          {explanations.length > 0 ? <section className="learn-section learn-content-panel">
-            <div className="learn-section-head">
-              <h2>{t("learn.explanationsTitle")}</h2>
-            </div>
-            {explanations.map((carousel) => (
-                <SecureCarouselFrame
-                  key={carousel.id}
-                  slug={carousel.slug}
-                  title={localized(carousel.title, locale)}
-                />
-              ))}
-          </section> : null}
-
-          {questions.length > 0 ? <section className="learn-section learn-content-panel">
-            <div className="learn-section-head">
-              <h2>{t("learn.questionsTitle")}</h2>
-            </div>
-            {questions.map((carousel) => (
-                <SecureCarouselFrame
-                  key={carousel.id}
-                  slug={carousel.slug}
-                  title={localized(carousel.title, locale)}
-                />
-              ))}
-          </section> : null}
-
-          {topicGroups.length > 0 ? <section className="learn-section learn-content-panel">
-            <div className="learn-section-head">
-              <h2>{t("learn.topicsTitle")}</h2>
-            </div>
-            <div className="learn-topic-groups">
-                {topicGroups.map((group) => (
-                  <div key={group.id} className="learn-topic-group">
-                    {group.title ? (
-                      <h3>{localized(group.title, locale)}</h3>
-                    ) : null}
-                    <div className="learn-topic-grid">
-                      {group.topics.map((topic) => (
-                        <Link
-                          key={topic.id}
-                          href={`/topic/${topic.slug}`}
-                          className="learn-topic-card"
-                        >
-                          <strong>{localized(topic.title, locale)}</strong>
-                          <span>{localized(topic.summary, locale)}</span>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </section> : null}
-        </>
-      )}
+        <button
+          type="button"
+          className={`learn-chapter-fab ${menuOpen ? "is-open" : ""}`}
+          onClick={() => setMenuOpen((open) => !open)}
+          aria-expanded={menuOpen}
+          aria-label={
+            menuOpen ? t("learn.closeChapters") : t("learn.openChapters")
+          }
+          title={menuOpen ? t("learn.closeChapters") : t("learn.openChapters")}
+        >
+          <span className="learn-hamburger" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </span>
+          {!menuOpen && current ? (
+            <span className="learn-fab-current" aria-hidden="true">
+              {chapterLabel(current)}
+            </span>
+          ) : null}
+        </button>
+      </div>
     </>
   );
 }

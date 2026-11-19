@@ -1,6 +1,6 @@
 # Frontend progress
 
-_Last updated: Next-plan game/visual/Q&A cycle on `/learn`, class-aware home carousel, 29-lesson generic carousel, eight themes and forum loading skeletons._
+_Last updated: `/learn` rebuilt around the library API with a floating hamburger chapter menu, selected-chapter player and pending-visualization state._
 
 ## Status
 
@@ -34,10 +34,26 @@ _Last updated: Next-plan game/visual/Q&A cycle on `/learn`, class-aware home car
 | Forum | ✅ | Top New-post toggle, infinite post feed, skeleton cards while loading, 135-sign maths toolbar, live KaTeX preview, comments with maths, Ask AI |
 | Maths toolbar | ✅ | Shared `mathSymbols.js` + `MathSymbolBar`; used by forum composer, comments and AI chat |
 | Route/API docs | ✅ | `docs/routes.md` |
-| Next-plan activities | OK | 15 MongoDB carousels (5 games + 5 visuals + 5 Q&A) from the merged folder 1/2/3 bank; Bolt robot default, Play/Nursery robot-mandatory |
-| Backend docs | ✅ | `../backend/docs/api/*` |
+| Next-plan activities | Archived | The 15 legacy carousels moved to the backend archive and were purged from MongoDB |
+| Learn library flow | ✅ | Class picker → floating hamburger chapter drawer → single-button mode → selected chapter player |
+| Library API client | ✅ | `src/api/library.api.js`; classes, chapters, chapter detail and visualization |
+| Backend docs | ✅ | `../vistutorbd-backend/docs/api/*` |
+
+> **Legacy notice.** The next-plan, Class 9–10 visual lab and class-aware carousel notes below describe the archived pipeline. They are kept for history and are no longer requested by `/learn`.
 
 ## Latest update
+
+### Library-driven Learn page
+
+- Added `src/api/library.api.js` with `getLibraryClasses`, `getLibraryChapters`, `getLibraryChapter` and `getLibraryVisualization`, exported from `src/api/index.js`.
+- Rebuilt `src/app/learn/page.jsx`:
+  - no class → class grid with chapter counts and locked Play/Nursery;
+  - class selected → floating hamburger button opens a chapter drawer with search, chapter number/paper, question count and visualization status;
+  - chapter selected → drawer closes, the button stays as a single small floating control, and the player requests the chapter visualization;
+  - no published HTML → localized “visualization being prepared” panel instead of a broken iframe.
+- Extended `SecureCarouselFrame` with a direct `html` prop so library visualizations render without calling the retired `/learn/carousels` API.
+- Added hamburger/drawer/player styles in `src/app/globals.css` and new English/Bangla strings in `src/lib/i18n.js`.
+- Verified with `bun run build`; the backend still passes `bun run typecheck`.
 
 ### Next-plan game + visual + Q&A cycle on `/learn`
 

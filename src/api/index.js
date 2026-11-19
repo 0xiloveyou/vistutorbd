@@ -4,6 +4,7 @@ export * from "./taxonomy.api";
 export * from "./topic.api";
 export * from "./visualization.api";
 export * from "./learn.api";
+export * from "./library.api";
 export * from "./userState.api";
 export * from "./quiz.api";
 export * from "./chat.api";
