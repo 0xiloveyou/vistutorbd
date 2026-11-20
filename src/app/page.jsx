@@ -2,7 +2,11 @@
 
 import ClassPicker from "@/components/ClassPicker";
 import VisualLessons from "@/components/VisualLessons";
-import { getCategories, getTopics, getVisualizations } from "@/api";
+import {
+  getCategories,
+  getPublicAnalyticsStats,
+  getTopics,
+} from "@/api";
 import { useClassSelection } from "@/providers/class.provider";
 import { useLocale } from "@/providers/locale.provider";
 import { useQuery } from "@tanstack/react-query";
@@ -16,6 +20,11 @@ function AnimatedCount({ value }) {
     const element = elementRef.current;
     if (!element) return undefined;
 
+    const abbreviated = value >= 100;
+    const target = abbreviated ? Math.floor(value / 100) * 100 : value;
+    const format = (count) =>
+      `${count.toLocaleString()}${abbreviated ? "+" : ""}`;
+
     let frame = 0;
     let observer;
     let started = false;
@@ -25,7 +34,7 @@ function AnimatedCount({ value }) {
       if (started) return;
       started = true;
       if (reducedMotion) {
-        element.textContent = value.toLocaleString();
+        element.textContent = format(target);
         return;
       }
 
@@ -34,7 +43,8 @@ function AnimatedCount({ value }) {
       const tick = (now) => {
         const progress = Math.min((now - start) / duration, 1);
         const eased = 1 - (1 - progress) ** 4;
-        element.textContent = Math.round(value * eased).toLocaleString();
+        const count = Math.round(target * eased);
+        element.textContent = progress === 1 ? format(target) : count.toLocaleString();
         if (progress < 1) frame = requestAnimationFrame(tick);
       };
       frame = requestAnimationFrame(tick);
@@ -63,9 +73,9 @@ function AnimatedCount({ value }) {
 
 function HomeCatalogStats({ onReady }) {
   const { bands } = useClassSelection();
-  const visualizations = useQuery({
-    queryKey: ["home-catalog-count", "visualizations"],
-    queryFn: () => getVisualizations({ page: 1, limit: 1 }),
+  const visitors = useQuery({
+    queryKey: ["home-catalog-count", "unique-visitors"],
+    queryFn: getPublicAnalyticsStats,
     staleTime: 5 * 60 * 1000,
   });
   const topics = useQuery({
@@ -81,9 +91,12 @@ function HomeCatalogStats({ onReady }) {
 
   const classCount = bands.reduce((total, band) => total + (band.levels?.length ?? 0), 0);
   const countsLoaded =
-    visualizations.isFetched && topics.isFetched && categories.isFetched;
+    topics.isFetched &&
+    categories.isFetched &&
+    visitors.isFetched;
   const stats = [
-    { label: "Visualizations", value: visualizations.data?.meta?.total },
+    { label: "Visualizations", value: visitors.data?.visualizations },
+    { label: "Unique visitors", value: visitors.data?.uniqueVisitors },
     { label: "Topics", value: topics.data?.meta?.total },
     { label: "Categories", value: categories.data?.length },
     { label: "Classes", value: classCount },
@@ -96,7 +109,7 @@ function HomeCatalogStats({ onReady }) {
   if (!countsLoaded) {
     return (
       <div className="home-catalog-stats home-catalog-stats-loading" aria-hidden="true">
-        {[0, 1, 2, 3].map((item) => <span key={item} />)}
+        {[0, 1, 2, 3, 4].map((item) => <span key={item} />)}
       </div>
     );
   }
