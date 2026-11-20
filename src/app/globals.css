@@ -6264,6 +6264,8 @@ code,
 }
 
 @media (min-width: 1101px) {
+  .header-nav .nav-link-menu-only { display: none; }
+
   .site-header {
     display: flex;
     align-items: center;

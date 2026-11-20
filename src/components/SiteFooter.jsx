@@ -16,6 +16,7 @@ export default function SiteFooter() {
         { href: "/forum", label: t("common.forum") },
         { href: "/bookmarks", label: t("common.bookmarks") },
         { href: "/faqs", label: t("common.faqs") },
+        { href: "/settings", label: t("common.settings") },
       ],
     },
     {
@@ -28,6 +29,7 @@ export default function SiteFooter() {
         { href: "/architecture", label: "Architecture" },
         { href: "/data", label: "Data" },
         { href: "/security", label: "Security" },
+        { href: "/sources", label: "Sources & credits" },
         { href: "/app", label: "Open app" },
       ],
     },

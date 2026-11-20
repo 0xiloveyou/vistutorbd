@@ -4,6 +4,9 @@ _Last updated: `/learn` rebuilt around the library API with a floating hamburger
 
 ## Judge showcase routes — 2026-11-20
 
+- Refined desktop navigation by moving About, Contact and Settings out of the desktop nav row; they remain in the mobile hamburger menu and footer. Added Settings and Sources & Credits to footer links.
+- Added `/sources` with NCTB and Ketab Uddin textbook references, public legal/source links and a clear notice that credit alone is not permission to reproduce book content.
+
 - Added `/app` as a direct entry to the live `/learn` application and one-click `/demo-user` and `/demo-admin` sign-in routes. Added both demo buttons to the login form; they use the backend's seeded demo credentials and normal session login API.
 - Added `/presentation` and `/pitchdeck` from `VisTutorBd-presentation-content.docx`. The pitch page distinguishes global category estimates from Bangladesh enrollment context and includes a Grand View Research forecast (US$8.3B in 2025 to US$57.2B in 2033; 25.9% CAGR, 2026–2033).
 - Added public `/data`, `/security` and `/architecture` sections, plus `/audit`, which validates the backend session and requires `ADMIN` before showing the snapshot.

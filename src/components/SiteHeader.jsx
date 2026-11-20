@@ -68,12 +68,12 @@ export default function SiteHeader() {
     router.push(value ? `/search?q=${encodeURIComponent(value)}` : "/search");
   };
 
-  const navLink = (href, label) => {
+  const navLink = (href, label, className = "") => {
     const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
     return (
       <Link
         href={href}
-        className={active ? "nav-link active" : "nav-link"}
+        className={`${active ? "nav-link active" : "nav-link"} ${className}`.trim()}
         aria-current={active ? "page" : undefined}
         onClick={() => setMenuOpen(false)}
       >
@@ -176,10 +176,10 @@ export default function SiteHeader() {
           {navLink("/learn", t("common.learn"))}
           {navLink("/forum", t("common.forum"))}
           {navLink("/bookmarks", t("common.bookmarks"))}
-          {navLink("/about", t("common.about"))}
-          {navLink("/contact", t("common.contact"))}
+          {navLink("/about", t("common.about"), "nav-link-menu-only")}
+          {navLink("/contact", t("common.contact"), "nav-link-menu-only")}
           {navLink("/faqs", t("common.faqs"))}
-          {navLink("/settings", t("common.settings"))}
+          {navLink("/settings", t("common.settings"), "nav-link-menu-only")}
           {user ? navLink("/profile", t("common.profile")) : null}
           {isEditor ? navLink("/admin", t("common.admin")) : null}
           {isEditor ? navLink("/moderator", t("common.moderator")) : null}

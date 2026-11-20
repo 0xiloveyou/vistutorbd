@@ -9,6 +9,7 @@ Next.js 15 + React 19 learner client for **VizTutorBD**, a visualization-first m
 - Judge showcase routes: `/app`, `/demo-user`, `/demo-admin`, `/data`, `/security`, `/architecture`, `/presentation`, `/pitchdeck` and admin-only `/audit`.
 - The login page offers one-click seeded demo learner/admin sign-in. The backend `.env`/`.env.example` credentials must match the frontend demo form; automatic seeding creates missing configured accounts when MongoDB is reachable. Rotate or disable these showcase-only credentials after judging.
 - Presentation and pitch pages use the supplied `VisTutorBd-presentation-content.docx`; the pitch page adds a sourced global AI-in-education forecast and labels enrollment figures as context rather than addressable market.
+- The desktop navigation keeps core learning links and hides About, Contact and Settings; those links remain in the mobile hamburger menu and footer. `/sources` records curriculum/textbook references and the limits of attribution.
 
 - `/learn` rebuilt around the new library: pick a class, open the floating hamburger chapter menu, choose a chapter, and the menu folds into one small button while the chapter visualization plays.
 - `src/api/library.api.js` exposes `getLibraryClasses`, `getLibraryChapters`, `getLibraryChapter` and `getLibraryVisualization`.
@@ -68,6 +69,7 @@ Start the backend first (`cd ../vistutorbd-backend && npm run dev`).
 | `/admin` | ADMIN | User/role controls and platform administration |
 | `/data` | public | Data flows, APIs, content and lineage notes |
 | `/security` | public | Authentication, roles, privacy and responsible AI notes |
+| `/sources` | public | Curriculum/textbook credits, rights clarification and permission guidance |
 | `/architecture` | public | Frontend/API/data/integration diagram |
 | `/presentation` | public | Product, problem, users and intended impact |
 | `/pitchdeck` | public | YC-style project brief with market context |
