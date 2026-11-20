@@ -2,9 +2,11 @@
 
 import apiClient from "@/lib/apiClient";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const STORAGE_KEY = "viztutor-visitor-id";
+export const CONSENT_KEY = "viztutor-consent-v1";
+export const CONSENT_EVENT = "viztutor-consent-change";
 
 const getVisitorId = () => {
   try {
@@ -29,9 +31,25 @@ const getVisitorId = () => {
  */
 export default function VisitorTracker() {
   const pathname = usePathname();
+  const [analyticsAllowed, setAnalyticsAllowed] = useState(false);
 
   useEffect(() => {
-    if (!pathname || pathname.startsWith("/_next")) return;
+    const readConsent = () => {
+      try {
+        setAnalyticsAllowed(
+          JSON.parse(localStorage.getItem(CONSENT_KEY) || "null")?.analytics === true,
+        );
+      } catch {
+        setAnalyticsAllowed(false);
+      }
+    };
+    readConsent();
+    window.addEventListener(CONSENT_EVENT, readConsent);
+    return () => window.removeEventListener(CONSENT_EVENT, readConsent);
+  }, []);
+
+  useEffect(() => {
+    if (!analyticsAllowed || !pathname || pathname.startsWith("/_next")) return;
 
     const visitorId = getVisitorId();
     if (!visitorId) return;
@@ -46,7 +64,7 @@ export default function VisitorTracker() {
     }).catch(() => {
       // Analytics is best-effort: never disturb the learner experience.
     });
-  }, [pathname]);
+  }, [analyticsAllowed, pathname]);
 
   return null;
 }

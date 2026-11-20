@@ -1,4 +1,5 @@
 import SiteChrome from "@/components/SiteChrome";
+import ConsentManager from "@/components/ConsentManager";
 import VisitorTracker from "@/components/VisitorTracker";
 import { serverGet } from "@/lib/serverApi";
 import Providers from "@/providers";
@@ -38,6 +39,7 @@ export default async function RootLayout({ children }) {
         />
         <Providers bands={bands}>
           <VisitorTracker />
+          <ConsentManager />
           <SiteChrome>{children}</SiteChrome>
         </Providers>
       </body>

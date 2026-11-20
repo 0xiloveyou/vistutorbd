@@ -54,8 +54,8 @@ const pages = {
       {
         heading: { en: "What we collect", bn: "আমরা যা সংগ্রহ করি" },
         body: {
-          en: "Account details (name, email, hashed password or Google id), learning data (bookmarks, progress, quiz attempts, preferences) and anonymous page visits (a browser-generated visitor id, page path and time).",
-          bn: "অ্যাকাউন্ট তথ্য (নাম, ইমেইল, হ্যাশ করা পাসওয়ার্ড বা গুগল আইডি), শেখার তথ্য (বুকমার্ক, অগ্রগতি, কুইজের চেষ্টা, পছন্দ) এবং বেনামি পেজ ভিজিট (ব্রাউজার-তৈরি ভিজিটর আইডি, পথ ও সময়)।",
+          en: "Account details (name, email, hashed password or Google id), learning data (bookmarks, progress, quiz attempts, preferences), and optional page visits (a browser-generated visitor id, page path, time and request IP address) when analytics is enabled. The backend also records request IP addresses in operational logs for security and troubleshooting.",
+          bn: "অ্যাকাউন্ট ও শেখার তথ্যের পাশাপাশি, অ্যানালিটিক্স চালু থাকলে ব্রাউজার-তৈরি ভিজিটর আইডি, দেখা পৃষ্ঠা, সময় ও অনুরোধের IP ঠিকানা সংগ্রহ হতে পারে। নিরাপত্তা ও সমস্যা সমাধানের জন্য ব্যাকএন্ড অপারেশনাল লগেও অনুরোধের IP ঠিকানা রাখা হয়।"
         },
       },
       {
@@ -75,15 +75,15 @@ const pages = {
       {
         heading: { en: "Your choices", bn: "আপনার অধিকার" },
         body: {
-          en: "You can update your profile, clear bookmarks, or contact us to request a copy or deletion of your account data. Anonymous visit records cannot be linked back to you.",
-          bn: "প্রোফাইল হালনাগাদ, বুকমার্ক মুছে ফেলা, অথবা অ্যাকাউন্ট তথ্যের কপি বা মুছে ফেলার অনুরোধ করতে আমাদের লিখতে পারেন। বেনামি ভিজিট রেকর্ড আপনার সাথে যুক্ত করা যায় না।",
+          en: "You can update your profile, clear bookmarks, or contact us to request a copy or deletion of your account data. Turning analytics off stops future page-view tracking and removes the browser's visitor id; it does not erase records already stored on the server.",
+          bn: "অ্যানালিটিক্স বন্ধ করলে ভবিষ্যতের পৃষ্ঠা-দর্শন ট্র্যাকিং বন্ধ হবে এবং ব্রাউজারের ভিজিটর আইডি মুছে যাবে; সার্ভারে আগে সংরক্ষিত তথ্য এতে মুছবে না।"
         },
       },
       {
         heading: { en: "Cookies and storage", bn: "কুকি ও স্টোরেজ" },
         body: {
-          en: "We use httpOnly cookies for sign-in and browser storage for language, theme, class choice and the anonymous visitor id. No advertising trackers are used.",
-          bn: "লগ ইনের জন্য httpOnly কুকি এবং ভাষা, থিম, শ্রেণি নির্বাচন ও বেনামি ভিজিটর আইডির জন্য ব্রাউজার স্টোরেজ ব্যবহার করি। বিজ্ঞাপন ট্র্যাকার নেই।",
+          en: "We use httpOnly cookies for sign-in and browser storage for language, theme and class choice. Optional analytics stores a random visitor id in browser storage and sends page views, including the request IP address, only after you enable analytics in Privacy Settings. You can change that choice at any time using the Privacy Settings button. Backend operational logs also record request IP addresses for security and troubleshooting regardless of the analytics choice. No advertising trackers are used.",
+          bn: "সাইন-ইনের জন্য httpOnly কুকি এবং ভাষা, থিম ও শ্রেণি পছন্দের জন্য ব্রাউজার স্টোরেজ ব্যবহার করি। Privacy Settings থেকে অ্যানালিটিক্স চালু করলে তবেই ভিজিটর আইডি সংরক্ষণ ও পৃষ্ঠা-দর্শনের তথ্য পাঠানো হয়। যেকোনো সময় পছন্দ বদলাতে পারবেন। অ্যানালিটিক্স পছন্দ যাই হোক, নিরাপত্তা ও সমস্যা সমাধানের জন্য ব্যাকএন্ড অপারেশনাল লগে অনুরোধের IP ঠিকানা রাখা হয়। বিজ্ঞাপনী ট্র্যাকার নেই."
         },
       },
     ],
