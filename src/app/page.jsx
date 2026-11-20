@@ -3,9 +3,8 @@
 import ClassPicker from "@/components/ClassPicker";
 import VisualLessons from "@/components/VisualLessons";
 import {
-  getCategories,
   getPublicAnalyticsStats,
-  getTopics,
+  getLibraryClasses,
 } from "@/api";
 import { useClassSelection } from "@/providers/class.provider";
 import { useLocale } from "@/providers/locale.provider";
@@ -76,29 +75,24 @@ function HomeCatalogStats({ onReady }) {
     queryFn: getPublicAnalyticsStats,
     staleTime: 5 * 60 * 1000,
   });
-  const topics = useQuery({
-    queryKey: ["home-catalog-count", "topics"],
-    queryFn: () => getTopics({ page: 1, limit: 1 }),
-    staleTime: 5 * 60 * 1000,
-  });
-  const categories = useQuery({
-    queryKey: ["home-catalog-count", "categories"],
-    queryFn: () => getCategories(),
+  const libraryClasses = useQuery({
+    queryKey: ["home-catalog-count", "library-classes"],
+    queryFn: getLibraryClasses,
     staleTime: 5 * 60 * 1000,
   });
 
   const classCount = bands.reduce((total, band) => total + (band.levels?.length ?? 0), 0);
-  const countsLoaded =
-    topics.isFetched &&
-    categories.isFetched &&
-    visitors.isFetched;
+  const chapterCount = (libraryClasses.data ?? []).reduce(
+    (total, item) => total + (item.chapterCount ?? 0),
+    0,
+  );
+  const countsLoaded = libraryClasses.isFetched && visitors.isFetched;
   const stats = [
     { label: "Visualizations", value: visitors.data?.visualizations },
     { label: "Unique visitors", value: visitors.data?.uniqueVisitors },
-    { label: "Topics", value: topics.data?.meta?.total },
-    { label: "Categories", value: categories.data?.length },
+    { label: "Chapters", value: chapterCount },
     { label: "Classes", value: classCount },
-  ].filter((stat) => Number.isFinite(stat.value) && stat.value > 0);
+  ].filter((stat) => Number.isFinite(stat.value) && stat.value >= 0);
 
   useEffect(() => {
     if (countsLoaded) onReady();
@@ -107,7 +101,7 @@ function HomeCatalogStats({ onReady }) {
   if (!countsLoaded) {
     return (
       <div className="home-catalog-stats home-catalog-stats-loading" aria-hidden="true">
-        {[0, 1, 2, 3, 4].map((item) => <span key={item} />)}
+        {[0, 1, 2, 3].map((item) => <span key={item} />)}
       </div>
     );
   }
