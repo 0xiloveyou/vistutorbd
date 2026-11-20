@@ -2,6 +2,12 @@
 
 import MathFormula from "@/components/MathFormula";
 import CompanionStage from "@/components/companion/CompanionStage";
+import {
+  playSpeechBlob,
+  speakWithBrowser,
+  stopSpeech,
+  synthesizeSpeech,
+} from "@/lib/speech";
 import { useLocale } from "@/providers/locale.provider";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getRenderer } from "./renderers";
@@ -72,6 +78,27 @@ export default function VizPlayer({
   useEffect(() => {
     onStepChange?.(index, step);
   }, [index, step, onStepChange]);
+
+  useEffect(() => {
+    const narration = step?.narration?.bn;
+    if (!sound || lang !== "bn" || !narration) return undefined;
+
+    let current = true;
+    stopSpeech();
+    void synthesizeSpeech(narration, "bn")
+      .then((blob) => {
+        if (current) return playSpeechBlob(blob);
+        return undefined;
+      })
+      .catch(() => {
+        if (current) speakWithBrowser(narration, "bn");
+      });
+
+    return () => {
+      current = false;
+      stopSpeech();
+    };
+  }, [index, lang, sound, step?.narration?.bn]);
 
   useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;

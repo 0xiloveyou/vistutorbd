@@ -58,8 +58,7 @@ export function stopSpeech() {
 }
 
 /**
- * Free, on-device voice. Used for Bangla (the free OpenRouter TTS model is
- * English-only) and as an offline fallback for English.
+ * Free, on-device voice used when backend speech generation is unavailable.
  */
 export function speakWithBrowser(text, lang, { onEnd, onError } = {}) {
   const clean = cleanSpeechText(text);
@@ -73,6 +72,16 @@ export function speakWithBrowser(text, lang, { onEnd, onError } = {}) {
 
   const utterance = new SpeechSynthesisUtterance(clean);
   utterance.lang = lang === "bn" ? "bn-BD" : "en-US";
+  if (lang === "bn") {
+    const banglaVoice = window.speechSynthesis
+      .getVoices()
+      .find((voice) => /^bn(?:-|_)/i.test(voice.lang));
+    if (!banglaVoice) {
+      onError?.(new Error("No Bangla voice is installed in this browser."));
+      return null;
+    }
+    utterance.voice = banglaVoice;
+  }
   utterance.rate = 0.98;
   utterance.pitch = 1;
   utterance.onend = () => onEnd?.();
@@ -85,14 +94,14 @@ export function speakWithBrowser(text, lang, { onEnd, onError } = {}) {
 }
 
 /** Fetches MP3 speech from the backend's OpenRouter free TTS route. */
-export async function synthesizeSpeech(text) {
+export async function synthesizeSpeech(text, lang = "en") {
   const response = await fetch(`${API_BASE_URL}/chat/speech`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
     body: JSON.stringify({
       text: cleanSpeechText(text),
-      lang: "en",
+      lang,
       format: "mp3",
     }),
   });

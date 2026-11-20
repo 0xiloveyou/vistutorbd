@@ -11,9 +11,8 @@ import { useLocale } from "@/providers/locale.provider";
 import { useEffect, useState } from "react";
 
 /**
- * Listen button for a companion answer. English uses the free OpenRouter TTS
- * model (via the backend); Bangla uses the device's free browser voice, with
- * a graceful fallback in both directions.
+ * Listen button for a companion answer. The backend generates English and
+ * Bangla audio; the device voice remains an offline fallback.
  */
 export default function SpeakButton({ text, lang, className = "" }) {
   const { locale, t } = useLocale();
@@ -47,15 +46,10 @@ export default function SpeakButton({ text, lang, className = "" }) {
 
     setFailed(false);
 
-    if (language === "bn") {
-      browserVoice();
-      return;
-    }
-
     setState("loading");
 
     try {
-      const blob = await synthesizeSpeech(text);
+      const blob = await synthesizeSpeech(text, language);
       const audio = await playSpeechBlob(blob);
       setState("playing");
       audio.addEventListener("ended", () => setState("idle"), { once: true });
