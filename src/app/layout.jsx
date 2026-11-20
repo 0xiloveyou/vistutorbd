@@ -1,6 +1,4 @@
-import FloatingDock from "@/components/FloatingDock";
-import SiteFooter from "@/components/SiteFooter";
-import SiteHeader from "@/components/SiteHeader";
+import SiteChrome from "@/components/SiteChrome";
 import VisitorTracker from "@/components/VisitorTracker";
 import { serverGet } from "@/lib/serverApi";
 import Providers from "@/providers";
@@ -40,10 +38,7 @@ export default async function RootLayout({ children }) {
         />
         <Providers bands={bands}>
           <VisitorTracker />
-          <SiteHeader />
-          <main className="page-shell">{children}</main>
-          <SiteFooter />
-          <FloatingDock />
+          <SiteChrome>{children}</SiteChrome>
         </Providers>
       </body>
     </html>

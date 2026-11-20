@@ -20,6 +20,7 @@ export default function SecureCarouselFrame({
   onReady,
   carouselData,
   html: directHtml,
+  fill = false,
 }) {
   const frameRef = useRef(null);
   const [height, setHeight] = useState(DEFAULT_HEIGHT);
