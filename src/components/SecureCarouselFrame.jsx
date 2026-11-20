@@ -84,7 +84,7 @@ export default function SecureCarouselFrame({
   }
 
   return (
-    <div className="learn-carousel-frame">
+    <div className={`learn-carousel-frame${fill ? " is-fill" : ""}`}>
       <iframe
         ref={frameRef}
         title={resolvedTitle || "Interactive math carousel"}
@@ -93,7 +93,7 @@ export default function SecureCarouselFrame({
         referrerPolicy="no-referrer"
         loading={onReady ? "eager" : "lazy"}
         allow="autoplay; fullscreen"
-        style={{ height }}
+        style={fill ? undefined : { height }}
         onLoad={onReady}
       />
     </div>

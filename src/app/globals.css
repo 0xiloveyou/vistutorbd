@@ -374,6 +374,29 @@ code,
   gap: var(--space-6);
 }
 
+/* The Learn player uses the full viewport so embedded lessons can size their
+   canvas against the device instead of a centered content card. */
+.page-shell-lesson {
+  width: 100%;
+  max-width: none;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+}
+
+.learn-screen {
+  position: relative;
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .site-footer {
   width: min(100% - 40px, var(--max-width));
   margin: 0 auto;
@@ -1037,6 +1060,19 @@ code,
   width: 100%;
   border: 0;
   background: #f1f5f9;
+}
+
+.learn-carousel-frame.is-fill {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.learn-carousel-frame.is-fill iframe {
+  height: 100%;
+  min-height: 0;
 }
 
 .home-visual-lessons .learn-carousel-frame {
