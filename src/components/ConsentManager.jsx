@@ -17,7 +17,6 @@ const copy = {
     save: "Save choices",
     accept: "Accept all",
     privacy: "Privacy Policy",
-    settings: "Privacy settings",
   },
   bn: {
     title: "আপনার গোপনীয়তা পছন্দ",
@@ -30,7 +29,6 @@ const copy = {
     save: "পছন্দ সংরক্ষণ",
     accept: "সব গ্রহণ",
     privacy: "গোপনীয়তা নীতি",
-    settings: "গোপনীয়তা সেটিংস",
   },
 };
 
@@ -38,7 +36,6 @@ export default function ConsentManager() {
   const { locale } = useLocale();
   const lang = locale === "bn" ? "bn" : "en";
   const text = copy[lang];
-  const [consent, setConsent] = useState(null);
   const [customizing, setCustomizing] = useState(false);
   const [analytics, setAnalytics] = useState(false);
   const [open, setOpen] = useState(false);
@@ -47,7 +44,6 @@ export default function ConsentManager() {
     try {
       const saved = JSON.parse(localStorage.getItem(CONSENT_KEY) || "null");
       if (saved && typeof saved.analytics === "boolean") {
-        setConsent(saved);
         setAnalytics(saved.analytics);
       } else {
         setOpen(true);
@@ -67,7 +63,6 @@ export default function ConsentManager() {
     const next = { essential: true, analytics: allowAnalytics, updatedAt: new Date().toISOString() };
     if (!allowAnalytics) localStorage.removeItem("viztutor-visitor-id");
     localStorage.setItem(CONSENT_KEY, JSON.stringify(next));
-    setConsent(next);
     setAnalytics(allowAnalytics);
     setOpen(false);
     setCustomizing(false);
@@ -76,11 +71,6 @@ export default function ConsentManager() {
 
   return (
     <>
-      {consent && !open ? (
-        <button className="privacy-settings-trigger" type="button" onClick={() => setOpen(true)}>
-          {text.settings}
-        </button>
-      ) : null}
       {open ? (
         <div className="consent-backdrop" role="presentation">
           <section className="consent-panel" role="dialog" aria-modal="true" aria-labelledby="consent-title">

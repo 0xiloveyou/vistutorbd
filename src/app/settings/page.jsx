@@ -158,6 +158,20 @@ export default function SettingsPage() {
           </button>
         </div>
       </form>
+
+      <section className="panel settings-privacy">
+        <div>
+          <h2>{t("settings.privacyChoices")}</h2>
+          <p className="muted">{t("settings.privacyHint")}</p>
+        </div>
+        <button
+          type="button"
+          className="btn btn-ghost"
+          onClick={() => window.dispatchEvent(new Event("viztutor-open-privacy-settings"))}
+        >
+          {t("settings.privacyButton")}
+        </button>
+      </section>
     </>
   );
 }
