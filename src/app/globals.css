@@ -1347,6 +1347,39 @@ code,
   animation: learn-menu-pop 0.18s ease-out;
 }
 
+.learn-legacy-lessons-link {
+  display: block;
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.learn-legacy-list {
+  display: grid;
+  gap: 7px;
+  margin-bottom: var(--space-3);
+}
+
+.learn-legacy-lessons-link.is-active,
+.learn-legacy-lessons-link:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.learn-legacy-lessons-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
 @keyframes learn-menu-pop {
   from {
     opacity: 0;

@@ -20,10 +20,8 @@ function AnimatedCount({ value }) {
     const element = elementRef.current;
     if (!element) return undefined;
 
-    const abbreviated = value >= 100;
-    const target = abbreviated ? Math.floor(value / 100) * 100 : value;
-    const format = (count) =>
-      `${count.toLocaleString()}${abbreviated ? "+" : ""}`;
+    const target = value;
+    const format = (count) => count.toLocaleString();
 
     let frame = 0;
     let observer;
@@ -145,7 +143,7 @@ export default function HomePage() {
             <>
               <section className="home-class-choice">
                 <span className="eyebrow">{t("home.chooseClass")}</span>
-                <ClassPicker showLink={false} redirectTo="/learn" />
+                <ClassPicker showLink={false} />
               </section>
               <section className="hero">
                 <div className="hero-copy">

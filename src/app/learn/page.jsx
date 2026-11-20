@@ -5,6 +5,7 @@ import {
   getLibraryChapters,
   getLibraryClasses,
   getLibraryVisualization,
+  getLearnCarousels,
 } from "@/api";
 import SecureCarouselFrame from "@/components/SecureCarouselFrame";
 import { localized } from "@/lib/localized";
@@ -24,6 +25,7 @@ export default function LearnPage() {
   const { locale, t } = useLocale();
   const [menuOpen, setMenuOpen] = useState(true);
   const [chapterId, setChapterId] = useState(null);
+  const [legacySlug, setLegacySlug] = useState(null);
   const [filter, setFilter] = useState("");
 
   const classesQuery = useQuery({
@@ -36,6 +38,14 @@ export default function LearnPage() {
   const chaptersQuery = useQuery({
     queryKey: ["library-chapters", level?.id ?? null],
     queryFn: () => getLibraryChapters(level.id),
+    enabled: Boolean(level?.id),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const legacyCarouselsQuery = useQuery({
+    queryKey: ["legacy-carousels", level?.id ?? null],
+    queryFn: () =>
+      getLearnCarousels({ classLevelId: level.id, kind: "EXPLANATION" }),
     enabled: Boolean(level?.id),
     staleTime: 5 * 60 * 1000,
   });
@@ -71,6 +81,12 @@ export default function LearnPage() {
   );
 
   const chapters = chaptersQuery.data ?? [];
+  const legacyCarousels = (legacyCarouselsQuery.data ?? []).filter((item) =>
+    item.slug.startsWith("legacy-"),
+  );
+  const activeLegacyCarousel = legacyCarousels.find(
+    (item) => item.slug === legacySlug,
+  );
   const current = useMemo(
     () => chapters.find((chapter) => chapter.chapterId === chapterId) ?? null,
     [chapters, chapterId],
@@ -78,6 +94,7 @@ export default function LearnPage() {
 
   useEffect(() => {
     setChapterId(null);
+    setLegacySlug(null);
     setFilter("");
     setMenuOpen(true);
   }, [level?.id]);
@@ -101,7 +118,14 @@ export default function LearnPage() {
   }, [chapters, filter]);
 
   const chooseChapter = (nextId) => {
+    setLegacySlug(null);
     setChapterId(nextId);
+    setMenuOpen(false);
+  };
+
+  const chooseLegacyCarousel = (slug) => {
+    setChapterId(null);
+    setLegacySlug(slug);
     setMenuOpen(false);
   };
 
@@ -168,7 +192,23 @@ export default function LearnPage() {
 
   return (
     <div className="learn-screen">
-      {!chapterId ? (
+      {legacySlug ? (
+        activeLegacyCarousel ? (
+          <SecureCarouselFrame
+            fill
+            slug={activeLegacyCarousel.slug}
+            title={
+              locale === "bn"
+                ? activeLegacyCarousel.title.bn
+                : activeLegacyCarousel.title.en
+            }
+          />
+        ) : (
+          <div className="learn-screen-status">
+            <p>{t("learn.carouselUnavailable")}</p>
+          </div>
+        )
+      ) : !chapterId ? (
         <button
           type="button"
           className="learn-screen-empty"
@@ -239,6 +279,24 @@ export default function LearnPage() {
             <p className="learn-chapter-panel-hint">
               {t("learn.chapterMenuHint")}
             </p>
+
+            {legacyCarousels.length ? (
+              <div className="learn-legacy-list">
+                <span className="eyebrow">
+                  {locale === "bn" ? "পুরোনো ভিজ্যুয়াল পাঠ" : "Legacy visual lessons"}
+                </span>
+                {legacyCarousels.map((carousel) => (
+                  <button
+                    key={carousel.slug}
+                    type="button"
+                    className={`learn-legacy-lessons-link ${legacySlug === carousel.slug ? "is-active" : ""}`}
+                    onClick={() => chooseLegacyCarousel(carousel.slug)}
+                  >
+                    {locale === "bn" ? carousel.title.bn : carousel.title.en}
+                  </button>
+                ))}
+              </div>
+            ) : null}
 
             <input
               className="learn-chapter-search"

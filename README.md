@@ -11,11 +11,11 @@ Next.js 15 + React 19 learner client for **VizTutorBD**, a visualization-first m
 - Presentation and pitch pages use the supplied `VisTutorBd-presentation-content.docx`; the pitch page adds a sourced global AI-in-education forecast and labels enrollment figures as context rather than addressable market.
 - The desktop navigation keeps core learning links and hides About, Contact and Settings; those links remain in the mobile hamburger menu and footer. `/sources` records curriculum/textbook references and the limits of attribution.
 
-- `/learn` rebuilt around the new library: pick a class, open the floating hamburger chapter menu, choose a chapter, and the menu folds into one small button while the chapter visualization plays.
+- The homepage hero loads the class-matched legacy visual carousel from MongoDB (Class 9–10 is the first-visit default) and updates when the home class selector changes. The robot explanation mode is first.
+- `/learn` uses the new chapter library: choose a class and chapter for chapter-by-chapter lessons, or open a synced legacy visual lesson from the chapter menu. The home **Start Learning** button still opens the chapter menu.
 - `src/api/library.api.js` exposes `getLibraryClasses`, `getLibraryChapters`, `getLibraryChapter` and `getLibraryVisualization`.
 - Chapter HTML is loaded from `GET /library/chapters/:chapterId/visualization` and embedded through `SecureCarouselFrame` (sandboxed iframe + height messaging). If no approved HTML exists yet, the page shows a "visualization being prepared" panel instead of an error.
-- Old class/category/chapter carousels are no longer requested by `/learn`. The backend archived them under `legacy-content/` and removed them from MongoDB.
-- Next-plan activities on the old `/learn` flow are retired with the legacy carousels; the new pipeline is chapter-by-chapter and follows the backend's mandatory `art-rules/RULES.md`.
+- Old lesson HTML is archived under the backend `legacy-content/old-resource/` folder and synced into MongoDB as class-aware `legacy-*` carousels by `bun run library:sync`. New chapter visualizations still follow the backend's mandatory `art-rules/RULES.md`.
 - Themes: eight palettes (indigo, emerald, sunset, rose, ocean, violet, amber, contrast) with light/dark modes and a swatch gallery in Settings.
 - Forum: three shimmer skeleton cards while the first page loads and one while loading more; the count shows “Loading…” instead of `0`, and no dummy post remains in the feed.
 - Forum: the composer is hidden behind a top **New post** button, the feed uses infinite scroll to load more posts at the bottom, and empty forums receive ten seeded starter posts from the backend.
@@ -100,7 +100,7 @@ The full route → endpoint map is in [`docs/routes.md`](docs/routes.md).
 - The class picker appears first. After a class is chosen, a floating hamburger button opens the chapter drawer; choosing a chapter closes the drawer and leaves the button as the only fixed control.
 - The player requests `/library/chapters/:chapterId/visualization`. Approved HTML is rendered through `SecureCarouselFrame` with `srcDoc`, the existing sandbox and iframe height reporting. The backend injects autoplay/loop support during sync.
 - If a chapter has no published HTML, the page shows the localized "visualization being prepared" panel. Chapters without a visualization are still selectable and show their pending state.
-- `VisualLessons.jsx` on the homepage still uses the old `/learn/carousels` API; that data is now empty because the legacy carousels were archived. The homepage carousel will be migrated to the library pipeline in a later pass.
+- `VisualLessons.jsx` uses the `/learn/carousels` API for the class-aware legacy hero; chapter lessons use `/library/*` through `/learn`.
 
 ## Structure
 
