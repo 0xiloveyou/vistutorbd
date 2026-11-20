@@ -2,7 +2,7 @@ import LoginForm from "@/components/auth/LoginForm";
 
 export const metadata = {
   title: "Log in",
-  description: "Sign in to MathPlay to save bookmarks, progress and quiz settings.",
+  description: "Sign in to VizTutorBD or use a judge demo account.",
 };
 
 export default function LoginPage() {

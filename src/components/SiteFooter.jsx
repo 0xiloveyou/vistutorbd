@@ -23,6 +23,12 @@ export default function SiteFooter() {
       links: [
         { href: "/about", label: t("common.about") },
         { href: "/contact", label: t("common.contact") },
+        { href: "/presentation", label: "Presentation" },
+        { href: "/pitchdeck", label: "Pitch deck" },
+        { href: "/architecture", label: "Architecture" },
+        { href: "/data", label: "Data" },
+        { href: "/security", label: "Security" },
+        { href: "/app", label: "Open app" },
       ],
     },
     {

@@ -54,6 +54,7 @@ function AdminBody() {
         <span className="eyebrow">{t("common.admin")}</span>
         <h1>{t("admin.title")}</h1>
         <p className="lead">{t("admin.placeholder")}</p>
+        <a className="btn btn-primary" href="/audit">Open global audit report</a>
       </header>
 
       <div className="tabs" role="tablist">

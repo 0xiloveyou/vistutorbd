@@ -6,6 +6,8 @@ The root layout fetches `GET /taxonomy/bands` on the server and passes the resul
 
 ## Public pages
 
+The judge-facing route set includes `/app` (redirects to `/learn`), `/demo-user`, `/demo-admin`, `/data`, `/security`, `/architecture`, `/presentation`, and `/pitchdeck`. `/audit` checks the signed-in user on the server and permits only `ADMIN`; other visitors go to `/login?next=/audit`. Demo routes use the backend seed identities and standard `/auth/login` cookie session.
+
 | Route | File | Rendering | APIs |
 | --- | --- | --- | --- |
 | `/` | `app/page.jsx` | client | Header `GET /auth/me`; chat `POST /chat/messages`, `POST /chat/image-problem` |

@@ -6,6 +6,10 @@ Next.js 15 + React 19 learner client for **VizTutorBD**, a visualization-first m
 
 ## Latest changes
 
+- Judge showcase routes: `/app`, `/demo-user`, `/demo-admin`, `/data`, `/security`, `/architecture`, `/presentation`, `/pitchdeck` and admin-only `/audit`.
+- The login page offers one-click seeded demo learner/admin sign-in. The backend `.env`/`.env.example` credentials must match the frontend demo form; automatic seeding creates missing configured accounts when MongoDB is reachable. Rotate or disable these showcase-only credentials after judging.
+- Presentation and pitch pages use the supplied `VisTutorBd-presentation-content.docx`; the pitch page adds a sourced global AI-in-education forecast and labels enrollment figures as context rather than addressable market.
+
 - `/learn` rebuilt around the new library: pick a class, open the floating hamburger chapter menu, choose a chapter, and the menu folds into one small button while the chapter visualization plays.
 - `src/api/library.api.js` exposes `getLibraryClasses`, `getLibraryChapters`, `getLibraryChapter` and `getLibraryVisualization`.
 - Chapter HTML is loaded from `GET /library/chapters/:chapterId/visualization` and embedded through `SecureCarouselFrame` (sandboxed iframe + height messaging). If no approved HTML exists yet, the page shows a "visualization being prepared" panel instead of an error.
@@ -58,6 +62,16 @@ Start the backend first (`cd ../vistutorbd-backend && npm run dev`).
 | `/about` | public | Mission, what the platform offers, audience |
 | `/contact` | public | Contact form → backend SMTP |
 | `/faqs` | public | Expandable frequently asked questions |
+| `/app` | public | Application entry route; redirects to `/learn` |
+| `/demo-user` | public | Signs in the seeded demo learner, then opens `/learn` |
+| `/demo-admin` | public | Signs in the seeded demo admin, then opens `/admin` |
+| `/admin` | ADMIN | User/role controls and platform administration |
+| `/data` | public | Data flows, APIs, content and lineage notes |
+| `/security` | public | Authentication, roles, privacy and responsible AI notes |
+| `/architecture` | public | Frontend/API/data/integration diagram |
+| `/presentation` | public | Product, problem, users and intended impact |
+| `/pitchdeck` | public | YC-style project brief with market context |
+| `/audit` | ADMIN | Global audit snapshot; redirects other visitors to login |
 | `/legal/terms` | public | Terms & Conditions |
 | `/legal/privacy` | public | Privacy Policy |
 | `/legal/disclaimer` | public | Disclaimer |

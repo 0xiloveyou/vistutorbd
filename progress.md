@@ -2,6 +2,14 @@
 
 _Last updated: `/learn` rebuilt around the library API with a floating hamburger chapter menu, selected-chapter player and pending-visualization state._
 
+## Judge showcase routes — 2026-11-20
+
+- Added `/app` as a direct entry to the live `/learn` application and one-click `/demo-user` and `/demo-admin` sign-in routes. Added both demo buttons to the login form; they use the backend's seeded demo credentials and normal session login API.
+- Added `/presentation` and `/pitchdeck` from `VisTutorBd-presentation-content.docx`. The pitch page distinguishes global category estimates from Bangladesh enrollment context and includes a Grand View Research forecast (US$8.3B in 2025 to US$57.2B in 2033; 25.9% CAGR, 2026–2033).
+- Added public `/data`, `/security` and `/architecture` sections, plus `/audit`, which validates the backend session and requires `ADMIN` before showing the snapshot.
+- Documented all routes and demo-account dependency in README and route docs. No build or tests run in this change.
+- Follow-up: configured backend `.env` demo accounts to match the login buttons and updated automatic seeding so missing demo users are created even when other accounts exist. The seed command was attempted but MongoDB DNS/network access failed; see backend `progress.md`. Restart/reseed the backend once its database is reachable.
+
 ## Status
 
 | Area | State | Notes |

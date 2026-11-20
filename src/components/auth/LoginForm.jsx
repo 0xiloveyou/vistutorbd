@@ -93,6 +93,11 @@ export default function LoginForm() {
         </div>
       ) : null}
 
+      <div className="demo-login-actions" aria-label="Judge demo accounts">
+        <Link href="/demo-user" className="btn">Continue as demo learner</Link>
+        <Link href="/demo-admin" className="btn">Continue as demo admin</Link>
+      </div>
+
       <div className="auth-links">
         <Link href="/forgot-password">{t("auth.forgot")}</Link>
         <Link href="/register">{t("auth.noAccount")}</Link>

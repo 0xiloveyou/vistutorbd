@@ -7462,6 +7462,37 @@ body {
   margin-top: var(--space-2);
 }
 
+/* Judge showcase routes */
+.showcase { width: min(1100px, calc(100% - 32px)); margin: 0 auto; padding: clamp(32px, 7vw, 84px) 0; }
+.showcase-hero { padding: clamp(28px, 6vw, 64px); border: 1px solid var(--border); border-radius: var(--radius-lg); background: radial-gradient(ellipse at 85% 0%, var(--accent-soft), transparent 55%), var(--surface); box-shadow: var(--shadow); }
+.showcase-kicker { color: var(--accent-strong); font: 700 .75rem var(--font-mono); letter-spacing: .12em; }
+.showcase-hero h1 { margin: 16px 0; font-size: clamp(2.6rem, 7vw, 5.2rem); line-height: 1.02; letter-spacing: -.055em; }
+.showcase-hero > p, .showcase-pagehead > p { max-width: 720px; color: var(--text-muted); font-size: 1.1rem; line-height: 1.7; }
+.showcase-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+.showcase-actions .btn, .demo-login-actions .btn { display: inline-flex; align-items: center; min-height: 42px; padding: 0 16px; border: 1px solid var(--border); border-radius: var(--radius-pill); color: var(--text); background: var(--surface); text-decoration: none; font-weight: 650; }
+.showcase-actions .btn-primary { background: var(--accent-gradient); color: var(--accent-contrast); border-color: transparent; }
+.showcase-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 245px), 1fr)); gap: 14px; margin-top: 20px; }
+.showcase-card { display: block; padding: 22px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); text-decoration: none; }
+a.showcase-card { transition: transform .18s ease, border-color .18s ease; }
+a.showcase-card:hover { transform: translateY(-3px); border-color: var(--accent); }
+.showcase-card > span { color: var(--accent); }
+.showcase-card h2, .showcase-card h3 { margin: 8px 0; }
+.showcase-card p, .showcase-section p { color: var(--text-muted); line-height: 1.75; }
+.showcase-document { max-width: 900px; }
+.showcase-pagehead { padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+.showcase-pagehead h1 { margin: 12px 0; font-size: clamp(2.2rem, 5vw, 3.8rem); letter-spacing: -.04em; }
+.showcase-section { padding: 28px 0; border-bottom: 1px solid var(--border); }
+.showcase-section h2 { margin: 0 0 12px; font-size: 1.45rem; }
+.showcase-section .showcase-grid { margin: 20px 0; }
+.showcase-note { padding: 14px 18px; border-left: 3px solid var(--accent); background: var(--surface-2); color: var(--text-muted); line-height: 1.7; }
+.architecture-diagram { display: grid; justify-items: center; gap: 10px; margin: 28px 0; }
+.architecture-diagram > div { width: min(100%, 550px); display: grid; gap: 5px; padding: 17px 22px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); text-align: center; }
+.architecture-diagram small { color: var(--text-muted); }
+.architecture-diagram i { color: var(--accent); font-style: normal; font-weight: 700; }
+.demo-login-actions { display: grid; gap: 8px; margin-top: 14px; }
+.demo-login-actions .btn { justify-content: center; }
+@media (prefers-reduced-motion: reduce) { a.showcase-card { transition: none; } }
+
 @media (max-width: 860px) {
   .algebra-scene {
     grid-template-columns: minmax(0, 1fr);
